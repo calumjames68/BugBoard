@@ -89,7 +89,7 @@
                         <div class="text-sm">
                             User EIN: <strong id="user-ein-display" class="text-slate-900">Loading...</strong>
                         </div>
-                        <!-- NEW Logout Button -->
+                        <!-- Logout Button -->
                         <button id="header-logout-btn" class="p-2 text-slate-500 hover:text-red-600" title="Log Out / Switch Role">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         </button>
@@ -265,7 +265,7 @@
         import { 
             getAuth, 
             signInAnonymously, 
-            signInWithCustomToken, 
+            // signInWithCustomToken, // Removed for GitHub version
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
@@ -287,14 +287,17 @@
         // --- GLOBAL VARIABLES ---
         let db, auth;
         let userId = null; // Firebase anonymous auth ID
-        let userEIN = null;  // NEW: User's saved EIN
-        let userRole = null; // NEW: User's role ('guide' or 'tl')
+        let userEIN = null;  // User's saved EIN
+        let userRole = null; // User's role ('guide' or 'tl')
         let ticketsCollectionRef;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'bug-board-default';
-        const ticketsCollectionPath = `artifacts/${appId}/public/data/tickets`;
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'bug-board-default'; // Removed for GitHub version
+        
+        // Use a simple root collection path for your own database
+        const ticketsCollectionPath = `tickets`;
+        
         let globalSnapshot = null; // To store the latest data for metric re-calculation
         let currentPage = null; // To track the visible page. Will be set by login logic.
-        let metricsChart = null; // NEW: To store the Chart.js instance
+        let metricsChart = null; // To store the Chart.js instance
 
         // Page titles for header
         const pageTitles = {
@@ -334,6 +337,7 @@
         const headerTitle = document.getElementById('header-title');
         const submitNavBtn = document.querySelector('.nav-link[data-page="submit"]');
         const logoutBtn = document.getElementById('logout-btn');
+        const headerLogoutBtn = document.getElementById('header-logout-btn'); // Header logout button
 
         // NEW Login Modal DOM Elements
         const loginModal = document.getElementById('login-modal');
@@ -380,7 +384,7 @@
             errorMsg.textContent = '';
             errorMsg.classList.add('hidden');
 
-            // NEW: Auto-fill EIN
+            // Auto-fill EIN
             affectedEinInput.value = userEIN;
 
             affectedTicketIdInput.value = ticketId;
@@ -393,7 +397,7 @@
          */
         function hideModal() {
             affectedForm.reset();
-            // NEW: Re-fill the read-only EIN field after reset
+            // Re-fill the read-only EIN field after reset
             affectedEinInput.value = userEIN; 
             
             const errorMsg = document.getElementById('modal-error-msg');
@@ -433,7 +437,7 @@
                 currentPage = 'known'; // Guides can't see submit page
             }
             
-            // NEW: Auto-fill submit form EIN if on that page
+            // Auto-fill submit form EIN if on that page
             if (currentPage === 'submit') {
                 ticketEinInput.value = userEIN;
             }
@@ -515,7 +519,7 @@
             localStorage.setItem('userRole', userRole);
             localStorage.setItem('userEIN', userEIN);
             
-            // NEW: Set default page based on role
+            // Set default page based on role
             if (userRole === 'tl') {
                 currentPage = 'submit';
             } else {
@@ -552,7 +556,7 @@
                 userEIN = savedEIN;
                 loginModal.classList.add('hidden');
 
-                // NEW: Set default page based on role (for page load)
+                // Set default page based on role (for page load)
                 if (userRole === 'tl') {
                     currentPage = 'submit';
                 } else {
@@ -577,33 +581,26 @@
             userEinDisplay.textContent = userEIN;
 
             // 3. Initialize Firebase
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBeci550NSuYHxGNctUPCEozou92w8n0Rw",
-  authDomain: "my-bug-board.firebaseapp.com",
-  projectId: "my-bug-board",
-  storageBucket: "my-bug-board.firebasestorage.app",
-  messagingSenderId: "276540108265",
-  appId: "1:276540108265:web:7f32c71f66e34f4d582f78",
-  measurementId: "G-Y6BL20YLJW"
-};
-const app = initializeApp(firebaseConfig);
-db = getFirestore(app);
-// ...
-// We don't need the 'appId' variable anymore, we can make a simpler path
-const ticketsCollectionPath = `tickets`; // This is now the "root" collection in your new database
-// ...
-// 4. Sign in the user (Firebase auth)
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        // ...
-    } else {
-        // No user, sign in
-        try {
-            // We ONLY use signInAnonymously now
-            await signInAnonymously(auth);
-        }
-        // ...
+            // -----------------------------------------------------------------
+            // --- IMPORTANT: PASTE YOUR OWN FIREBASE CONFIG OBJECT HERE ---
+            // (You get this from your Firebase Project Settings)
+            // -----------------------------------------------------------------
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+              apiKey: "AIzaSyBeci550NSuYHxGNctUPCEozou92w8n0Rw",
+              authDomain: "my-bug-board.firebaseapp.com",
+              projectId: "my-bug-board",
+              storageBucket: "my-bug-board.firebasestorage.app",
+              messagingSenderId: "276540108265",
+              appId: "1:276540108265:web:7f32c71f66e34f4d582f78",
+              measurementId: "G-Y6BL20YLJW"
+            };
+            // -----------------------------------------------------------------
+
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setLogLevel('debug');
 
             // 4. Sign in the user (Firebase auth)
             onAuthStateChanged(auth, async (user) => {
@@ -613,7 +610,7 @@ onAuthStateChanged(auth, async (user) => {
                     ticketsCollectionRef = collection(db, ticketsCollectionPath);
                     onSnapshot(query(ticketsCollectionRef), renderApp);
 
-                    // NEW: Seed permanent issues on load
+                    // Seed permanent issues on load
                     await seedPermanentIssues();
 
                     // 5. Attach all event handlers
@@ -635,7 +632,7 @@ onAuthStateChanged(auth, async (user) => {
                         link.addEventListener('click', handleNavClick);
                     });
                     logoutBtn.addEventListener('click', handleLogout); // Attach sidebar logout listener
-                    document.getElementById('header-logout-btn').addEventListener('click', handleLogout); // NEW: Attach header logout listener
+                    headerLogoutBtn.addEventListener('click', handleLogout); // Attach header logout listener
 
                     // 6. Initial Page Render
                     renderPage();
@@ -643,11 +640,8 @@ onAuthStateChanged(auth, async (user) => {
                 } else {
                     // No user, sign in
                     try {
-                        if (typeof __initial_auth_token !== 'undefined') {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
+                        // For the GitHub version, we ONLY use anonymous sign-in
+                        await signInAnonymously(auth);
                     } catch (error) {
                         console.error("Authentication failed: ", error);
                     }
@@ -672,6 +666,7 @@ onAuthStateChanged(auth, async (user) => {
             ];
 
             try {
+                // Check if any permanent issues exist at all
                 const q = query(ticketsCollectionRef, where("isPermanent", "==", true));
                 const querySnapshot = await getDocs(q);
                 
@@ -680,6 +675,7 @@ onAuthStateChanged(auth, async (user) => {
 
                 if (missingTitles.length > 0) {
                     console.log(`Seeding ${missingTitles.length} missing permanent issues...`);
+                    // Use a loop to add each missing doc
                     for (const title of missingTitles) {
                         await addDoc(ticketsCollectionRef, {
                             title: title,
@@ -722,9 +718,7 @@ onAuthStateChanged(auth, async (user) => {
             let completedTicketsArray = []; 
 
             if (querySnapshot.empty) {
-                newTicketsList.innerHTML = '<p class="text-slate-400">No new issues...</p>';
-                knownTicketsList.innerHTML = '<p class="text-slate-400">No known issues...</p>';
-                completedTicketsList.innerHTML = '<p class="text-slate-400">No completed issues...</p>';
+                // Handled below by checking array lengths
             }
 
             querySnapshot.forEach(doc => {
@@ -744,6 +738,9 @@ onAuthStateChanged(auth, async (user) => {
 
             // --- RENDER PENDING (NEW) TICKETS ---
             if (pendingTickets.length > 0) {
+                // Sort pending tickets by newest first
+                pendingTickets.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+
                 pendingTickets.forEach(ticket => {
                     const el = document.createElement('div');
                     el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
