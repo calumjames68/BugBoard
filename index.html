@@ -287,7 +287,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'bug-board-default';
         const ticketsCollectionPath = `artifacts/${appId}/public/data/tickets`;
         let globalSnapshot = null; // To store the latest data for metric re-calculation
-        let currentPage = 'known'; // To track the visible page
+        let currentPage = null; // To track the visible page. Will be set by login logic.
         let metricsChart = null; // NEW: To store the Chart.js instance
 
         // Page titles for header
@@ -509,6 +509,13 @@
             localStorage.setItem('userRole', userRole);
             localStorage.setItem('userEIN', userEIN);
             
+            // NEW: Set default page based on role
+            if (userRole === 'tl') {
+                currentPage = 'submit';
+            } else {
+                currentPage = 'known';
+            }
+
             loginErrorMsg.classList.add('hidden');
             loginModal.classList.add('hidden'); // Hide modal
             initializeAppLogic(); // Start the main app
@@ -538,6 +545,14 @@
                 userRole = savedRole;
                 userEIN = savedEIN;
                 loginModal.classList.add('hidden');
+
+                // NEW: Set default page based on role (for page load)
+                if (userRole === 'tl') {
+                    currentPage = 'submit';
+                } else {
+                    currentPage = 'known';
+                }
+
                 initializeAppLogic();
             } else {
                 // No role/EIN saved, show the login modal
