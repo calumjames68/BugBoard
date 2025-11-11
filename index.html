@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bug Board</title>
     <!-- 1. Load Tailwind CSS -->
+    <!-- FIX: Corrected the Tailwind CSS script URL -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 2. Configure Tailwind for Inter font -->
     <script>
@@ -14,6 +15,11 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
+                    // ADDED: BT/EE Color Palette
+                    colors: {
+                        'primary': '#6400aa',
+                        'secondary': '#009ba4',
+                    }
                 },
             },
         };
@@ -44,13 +50,15 @@
         }
     </style>
 </head>
-<body class="font-sans bg-slate-100 text-slate-800 min-h-screen">
+<!-- MODIFIED: Changed background to white -->
+<body class="font-sans bg-white text-slate-800 min-h-screen">
     
     <!-- Sidebar -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 opacity-0 pointer-events-none"></div>
     <div id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-40 transform -translate-x-full flex flex-col">
         <div class="p-5 flex-grow">
-            <h2 class="text-2xl font-semibold text-blue-700 mb-6">Bug Board</h2>
+            <!-- MODIFIED: Color -->
+            <h2 class="text-2xl font-semibold text-primary mb-6">Bug Board</h2>
             <nav class="space-y-2">
                 <button data-page="submit" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Submit New Issue</button>
                 <button data-page="pending" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Pending Issues</button>
@@ -61,9 +69,23 @@
         </div>
         <!-- Log Out Button -->
         <div class="p-5 border-t border-slate-200">
-            <button id="logout-btn" class="w-full text-left p-3 rounded-lg font-medium text-slate-500 hover:bg-red-50 hover:text-red-600">
+            <!-- MODIFIED: Color -->
+            <button id="logout-btn" class="w-full text-left p-3 rounded-lg font-medium text-slate-500 hover:bg-secondary/10 hover:text-secondary">
                 Log Out / Switch Role
             </button>
+        </div>
+    </div>
+
+    <!-- ADDED: App Loader Screen -->
+    <!-- MODIFIED: Changed background to white -->
+    <div id="app-loader" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white hidden">
+        <div class="text-center">
+            <!-- MODIFIED: Color -->
+            <svg class="animate-spin h-8 w-8 text-primary mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-slate-700">Loading Bug Board...</h3>
         </div>
     </div>
 
@@ -82,15 +104,18 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                             </svg>
                         </button>
-                        <h1 id="header-title" class="text-2xl font-bold text-blue-700 ml-4">Submit New Issue</h1>
+                        <!-- MODIFIED: Color -->
+                        <h1 id="header-title" class="text-2xl font-bold text-primary ml-4">Submit New Issue</h1>
                     </div>
-                    <!-- Right: User EIN & Logout -->
+                    <!-- Right: User Name & Logout -->
                     <div class="flex items-center space-x-4">
                         <div class="text-sm">
-                            User EIN: <strong id="user-ein-display" class="text-slate-900">Loading...</strong>
+                            <!-- MODIFIED: "EIN" to "Name" -->
+                            User Name: <strong id="user-name-display" class="text-slate-900">Loading...</strong>
                         </div>
                         <!-- Logout Button -->
-                        <button id="header-logout-btn" class="p-2 text-slate-500 hover:text-red-600" title="Log Out / Switch Role">
+                        <!-- MODIFIED: Color -->
+                        <button id="header-logout-btn" class="p-2 text-slate-500 hover:text-secondary" title="Log Out / Switch Role">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         </button>
                     </div>
@@ -108,22 +133,26 @@
                         <form id="new-ticket-form">
                             <div class="mb-4">
                                 <label for="ticket-title" class="block text-sm font-medium text-slate-700 mb-1">Issue Title</label>
-                                <input type="text" id="ticket-title" placeholder="e.g., 'Login button not working'" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <!-- MODIFIED: Color -->
+                                <input type="text" id="ticket-title" placeholder="e.g., 'Login button not working'" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
                             </div>
                             <div class="mb-4">
                                 <label for="ticket-desc" class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                                <textarea id="ticket-desc" rows="4" placeholder="Describe the issue in detail..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required></textarea>
+                                <!-- MODIFIED: Color -->
+                                <textarea id="ticket-desc" rows="4" placeholder="Describe the issue in detail..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required></textarea>
                             </div>
-                            <!-- MODIFIED: EIN field will be auto-filled -->
+                            <!-- MODIFIED: Name field will be auto-filled -->
                             <div class="mb-4">
-                                <label for="ticket-ein" class="block text-sm font-medium text-slate-700 mb-1">Your EIN</label>
-                                <input type="text" id="ticket-ein" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm bg-slate-100" readonly required>
+                                <label for="ticket-name" class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+                                <input type="text" id="ticket-name" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm bg-slate-100" readonly required>
                             </div>
                             <div class="mb-4">
                                 <label for="ticket-code" class="block text-sm font-medium text-slate-700 mb-1">Unique Code</label>
-                                <input type="text" id="ticket-code" placeholder="e.g., 'ALPHA123'" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <!-- MODIFIED: Color -->
+                                <input type="text" id="ticket-code" placeholder="e.g., 'ALPHA123'" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-150">
+                            <!-- MODIFIED: Color -->
+                            <button type="submit" class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary/90 transition duration-150">
                                 Submit Issue
                             </button>
                         </form>
@@ -142,20 +171,44 @@
                 </div>
 
                 <!-- Page 3: Known Issues (Guide View) -->
+                <!-- UPDATED SECTION -->
                 <div id="page-known" class="page-content hidden">
-                    <section class="bg-white p-6 rounded-lg shadow-md">
-                        <p class="text-sm text-slate-500 mb-4">Guides can report if they are affected. List is sorted by most affected.</p>
-                        <div id="known-tickets-list" class="space-y-4">
-                            <!-- Known tickets will be injected here by JS -->
-                            <p class="text-slate-400">No known issues...</p>
-                        </div>
-                    </section>
+                    <p class="text-sm text-slate-500 mb-4">Guides can report if they are affected. Lists are sorted by most affected.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Column 1: Persistent Issues -->
+                        <section class="bg-white p-6 rounded-lg shadow-md">
+                            <!-- MODIFIED: Color -->
+                            <h2 class="text-xl font-semibold text-primary mb-4">Persistent Issues</h2>
+                            <div id="persistent-issues-list" class="space-y-4">
+                                <!-- Persistent tickets will be injected here by JS -->
+                                <p class="text-slate-400">No persistent issues...</p>
+                            </div>
+                        </section>
+                        
+                        <!-- Column 2: New & Important Issues -->
+                        <section class="bg-white p-6 rounded-lg shadow-md">
+                            <!-- MODIFIED: Color -->
+                            <h2 class="text-xl font-semibold text-secondary mb-4">New & Important Issues</h2>
+                            <div id="new-issues-list" class="space-y-4">
+                                <!-- New/non-persistent known tickets will be injected here by JS -->
+                                <p class="text-slate-400">No new known issues...</p>
+                            </div>
+                        </section>
+                    </div>
                 </div>
+                <!-- END UPDATED SECTION -->
 
                 <!-- Page 4: Completed Issues (Archive) -->
                 <div id="page-completed" class="page-content hidden">
                     <section class="bg-white p-6 rounded-lg shadow-md">
-                        <p class="text-sm text-slate-500 mb-4">Resolved issues are stored here.</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-sm text-slate-500">Resolved issues are stored here.</p>
+                            <!-- ADDED: Download Button -->
+                            <button id="download-completed-btn" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition text-sm">
+                                Download Report (CSV)
+                            </button>
+                        </div>
                         <div id="completed-tickets-list" class="space-y-4">
                             <!-- Completed tickets will be injected here by JS -->
                             <p class="text-slate-400">No completed issues...</p>
@@ -166,17 +219,26 @@
                 <!-- Page 5: Metrics Section -->
                 <div id="page-metrics" class="page-content hidden">
                     <section class="bg-white p-6 rounded-lg shadow-md">
+                        <!-- ADDED: Download Button Wrapper -->
+                        <div class="flex justify-end mb-4">
+                            <button id="download-metrics-btn" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition text-sm">
+                                Download Report (CSV)
+                            </button>
+                        </div>
                         <!-- Top row: Summary boxes -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                             <!-- Metric Display 1 -->
-                            <div class="p-4 bg-purple-100 rounded-lg">
-                                <div class="text-sm text-purple-800">Total "Affected" Reports</div>
-                                <div id="metric-total-affected" class="text-3xl font-bold text-purple-900">0</div>
+                            <!-- MODIFIED: Color -->
+                            <div class="p-4 bg-secondary/10 rounded-lg">
+                                <div class="text-sm text-secondary/90">Total "Affected" Reports</div>
+                                <div id="metric-total-affected" class="text-3xl font-bold text-secondary">0</div>
                             </div>
                             <!-- Metric Display 2 -->
-                            <div class="p-4 bg-blue-100 rounded-lg">
-                                <div class="text-sm text-blue-800">Unique Affected Guides</div>
-                                <div id="metric-unique-affected" class="text-3xl font-bold text-blue-900">0</div>
+                            <!-- MODIFIED: Color -->
+                            <div class="p-4 bg-primary/10 rounded-lg">
+                                <!-- MODIFIED: "Guides" to "Users" -->
+                                <div class="text-sm text-primary/90">Unique Affected Users</div>
+                                <div id="metric-unique-affected" class="text-3xl font-bold text-primary">0</div>
                             </div>
                         </div>
 
@@ -213,10 +275,10 @@
                 <input type="hidden" id="affected-ticket-id">
                 <!-- New Error Message Div -->
                 <div id="modal-error-msg" class="text-red-600 text-sm mb-3 hidden"></div>
-                <!-- MODIFIED: EIN field will be auto-filled -->
+                <!-- MODIFIED: Name field will be auto-filled -->
                 <div class="mb-4">
-                    <label for="affected-ein" class="block text-sm font-medium text-slate-700 mb-1">Your EIN</label>
-                    <input type="text" id="affected-ein" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm bg-slate-100" readonly required>
+                    <label for="affected-name" class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+                    <input type="text" id="affected-name" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm bg-slate-100" readonly required>
                 </div>
                 <div class="mb-4">
                     <label for="affected-comments" class="block text-sm font-medium text-slate-700 mb-1">Comments (Optional)</label>
@@ -226,7 +288,8 @@
                     <button type="button" id="modal-cancel-btn" class="bg-slate-200 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-600 transition">
+                    <!-- MODIFIED: Color -->
+                    <button type="submit" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition">
                         Submit Report
                     </button>
                 </div>
@@ -234,24 +297,54 @@
         </div>
     </div>
     
+    <!-- NEW: "Complete Issue" Modal -->
+    <div id="complete-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 opacity-0 pointer-events-none">
+        <div class="modal-content bg-white w-full max-w-md p-6 rounded-lg shadow-xl transform scale-95">
+            <h3 class="text-xl font-semibold mb-4">Complete Issue</h3>
+            <form id="complete-form">
+                <input type="hidden" id="complete-ticket-id">
+                <div id="complete-modal-error-msg" class="text-red-600 text-sm mb-3 hidden"></div>
+                <div class="mb-4">
+                    <label for="complete-description" class="block text-sm font-medium text-slate-700 mb-1">Resolution Details</label>
+                    <textarea id="complete-description" rows="3" placeholder="Describe the fix or resolution..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm" required></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="complete-modal-cancel-btn" class="bg-slate-200 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition">
+                        Cancel
+                    </button>
+                    <!-- MODIFIED: Color -->
+                    <button type="submit" class="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary/90 transition">
+                        Mark as Complete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- NEW: Role Login Modal (Re-designed) -->
-    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-100">
+    <!-- MODIFIED: Changed background to white -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white">
         <div class="bg-white w-full max-w-sm p-8 rounded-lg shadow-xl">
-            <h3 class="text-2xl font-semibold mb-6 text-center text-blue-700">Welcome to Bug Board</h3>
+            <!-- MODIFIED: Color -->
+            <h3 class="text-2xl font-semibold mb-6 text-center text-primary">Welcome to Bug Board</h3>
             
             <form id="login-form" class="space-y-4">
                 <div>
-                    <label for="ein-input" class="block text-sm font-medium text-slate-700 mb-2">Your EIN</label>
-                    <input type="text" id="ein-input" placeholder="e.g., 12345" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <!-- MODIFIED: "EIN" to "Name" -->
+                    <label for="name-input" class="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
+                    <!-- MODIFIED: Color -->
+                    <input type="text" id="name-input" placeholder="e.g., Jane Doe" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
                 </div>
                 <div>
                     <label for="tl-code-input" class="block text-sm font-medium text-slate-700 mb-2">Unique Code (if you are a TL)</label>
-                    <input type="password" id="tl-code-input" placeholder="Optional TL Code" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <!-- MODIFIED: Color -->
+                    <input type="password" id="tl-code-input" placeholder="Optional TL Code" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary">
                 </div>
                 
                 <div id="login-error-msg" class="text-red-600 text-sm pt-1 hidden"></div>
                 
-                <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-150 mt-4">
+                <!-- MODIFIED: Color and ADDED id="login-btn" -->
+                <button type="submit" id="login-btn" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-primary/90 transition duration-150 mt-4">
                     Login
                 </button>
             </form>
@@ -287,13 +380,19 @@
         // --- GLOBAL VARIABLES ---
         let db, auth;
         let userId = null; // Firebase anonymous auth ID
-        let userEIN = null;  // User's saved EIN
+        let userName = null;  // MODIFIED: User's saved Name
         let userRole = null; // User's role ('guide' or 'tl')
         let ticketsCollectionRef;
         // const appId = typeof __app_id !== 'undefined' ? __app_id : 'bug-board-default'; // Removed for GitHub version
         
         // Use a simple root collection path for your own database
         const ticketsCollectionPath = `tickets`;
+        // ADDED: New collection path for TL codes
+        const tlCodesCollectionPath = `tl_codes`;
+        // REMOVED: The flat activity log
+        // const activityLogCollectionPath = `activity_log`;
+        // ADDED: New collection path for users
+        const usersCollectionPath = `users`;
         
         let globalSnapshot = null; // To store the latest data for metric re-calculation
         let currentPage = null; // To track the visible page. Will be set by login logic.
@@ -311,9 +410,15 @@
         // --- DOM Elements ---
         const newTicketForm = document.getElementById('new-ticket-form');
         const newTicketsList = document.getElementById('new-tickets-list');
-        const knownTicketsList = document.getElementById('known-tickets-list');
+        // UPDATED: Get the two new lists for Known Issues
+        const persistentIssuesList = document.getElementById('persistent-issues-list');
+        const newIssuesList = document.getElementById('new-issues-list');
         const completedTicketsList = document.getElementById('completed-tickets-list');
         
+        // ADDED: Download Buttons
+        const downloadCompletedBtn = document.getElementById('download-completed-btn');
+        const downloadMetricsBtn = document.getElementById('download-metrics-btn');
+
         // Metric DOM Elements
         const metricTotalAffected = document.getElementById('metric-total-affected');
         const metricUniqueAffected = document.getElementById('metric-unique-affected');
@@ -325,8 +430,16 @@
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
         const affectedForm = document.getElementById('affected-form');
         const affectedTicketIdInput = document.getElementById('affected-ticket-id');
-        const affectedEinInput = document.getElementById('affected-ein'); // Modal EIN input
+        const affectedNameInput = document.getElementById('affected-name'); // MODIFIED: Modal Name input
         const affectedCommentsInput = document.getElementById('affected-comments');
+
+        // NEW Complete Modal DOM Elements
+        const completeModal = document.getElementById('complete-modal');
+        const completeForm = document.getElementById('complete-form');
+        const completeTicketIdInput = document.getElementById('complete-ticket-id');
+        const completeDescriptionInput = document.getElementById('complete-description');
+        const completeModalCancelBtn = document.getElementById('complete-modal-cancel-btn');
+        const completeModalErrorMsg = document.getElementById('complete-modal-error-msg');
 
         // New Nav DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -342,15 +455,17 @@
         // NEW Login Modal DOM Elements
         const loginModal = document.getElementById('login-modal');
         const loginForm = document.getElementById('login-form');
-        const einInput = document.getElementById('ein-input');
+        const nameInput = document.getElementById('name-input'); // MODIFIED: nameInput
         const tlCodeInput = document.getElementById('tl-code-input');
         const loginErrorMsg = document.getElementById('login-error-msg');
+        const appLoader = document.getElementById('app-loader'); // ADDED
+        const loginButton = document.getElementById('login-btn'); // ADDED
         
         // Header Display
-        const userEinDisplay = document.getElementById('user-ein-display');
+        const userNameDisplay = document.getElementById('user-name-display'); // MODIFIED: userNameDisplay
         
         // Form inputs to auto-fill
-        const ticketEinInput = document.getElementById('ticket-ein'); // Submit form EIN input
+        const ticketNameInput = document.getElementById('ticket-name'); // MODIFIED: Submit form Name input
 
         // --- HELPER FUNCTIONS ---
 
@@ -359,7 +474,7 @@
          */
         function formatTimeAgo(timestamp) {
             if (!timestamp) return '...';
-            const date = timestamp.toDate ? timestamp.toDate() : timestamp;
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); // Handle JS Dates too
             const seconds = Math.floor((new Date() - date) / 1000);
             
             let interval = seconds / 31536000;
@@ -384,8 +499,8 @@
             errorMsg.textContent = '';
             errorMsg.classList.add('hidden');
 
-            // Auto-fill EIN
-            affectedEinInput.value = userEIN;
+            // Auto-fill Name
+            affectedNameInput.value = userName; // MODIFIED
 
             affectedTicketIdInput.value = ticketId;
             affectedModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -397,8 +512,8 @@
          */
         function hideModal() {
             affectedForm.reset();
-            // Re-fill the read-only EIN field after reset
-            affectedEinInput.value = userEIN; 
+            // Re-fill the read-only Name field after reset
+            affectedNameInput.value = userName; // MODIFIED
             
             const errorMsg = document.getElementById('modal-error-msg');
             errorMsg.textContent = '';
@@ -406,6 +521,38 @@
             
             affectedModal.classList.add('opacity-0', 'pointer-events-none');
             affectedModal.querySelector('.modal-content').classList.add('scale-95');
+        }
+
+        /**
+         * Shows the "Complete Issue" modal
+         */
+        function showCompleteModal(ticketId) {
+            completeModalErrorMsg.textContent = '';
+            completeModalErrorMsg.classList.add('hidden');
+            completeTicketIdInput.value = ticketId;
+            completeModal.classList.remove('opacity-0', 'pointer-events-none');
+            completeModal.querySelector('.modal-content').classList.remove('scale-95');
+        }
+
+        /**
+         * Hides the "Complete Issue" modal
+         */
+        function hideCompleteModal() {
+            completeForm.reset();
+            completeModalErrorMsg.textContent = '';
+            completeModalErrorMsg.classList.add('hidden');
+            completeModal.classList.add('opacity-0', 'pointer-events-none');
+            completeModal.querySelector('.modal-content').classList.add('scale-95');
+        }
+
+        /**
+         * NEW HELPER: Gets a Date object for the start of the current day (00:00:00)
+         * in the user's local timezone.
+         */
+        function getStartOfDay() {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            return now;
         }
 
         // --- NEW NAVIGATION FUNCTIONS ---
@@ -437,9 +584,9 @@
                 currentPage = 'known'; // Guides can't see submit page
             }
             
-            // Auto-fill submit form EIN if on that page
+            // Auto-fill submit form Name if on that page
             if (currentPage === 'submit') {
-                ticketEinInput.value = userEIN;
+                ticketNameInput.value = userName; // MODIFIED
             }
 
             // Hide all pages
@@ -457,9 +604,10 @@
             // Highlight active nav link
             navLinks.forEach(link => {
                 if (link.dataset.page === currentPage) {
-                    link.classList.add('bg-slate-100', 'text-blue-600');
+                    // MODIFIED: Color
+                    link.classList.add('bg-slate-100', 'text-primary');
                 } else {
-                    link.classList.remove('bg-slate-100', 'text-blue-600');
+                    link.classList.remove('bg-slate-100', 'text-primary');
                 }
             });
         }
@@ -484,41 +632,36 @@
         function renderUIForRole() {
             if (!userRole) return; // Should not happen
 
+            // Get download buttons
+            const downloadCompletedBtn = document.getElementById('download-completed-btn');
+            const downloadMetricsBtn = document.getElementById('download-metrics-btn');
+
             if (userRole === 'guide') {
                 submitNavBtn.style.display = 'none'; // Hide "Submit Issue" link
+                // ADDED: Hide download buttons for guides
+                downloadCompletedBtn.style.display = 'none';
+                downloadMetricsBtn.style.display = 'none';
             } else if (userRole === 'tl') {
                 submitNavBtn.style.display = 'block'; // Ensure "Submit Issue" link is visible
+                // ADDED: Show download buttons for TLs
+                downloadCompletedBtn.style.display = 'block';
+                downloadMetricsBtn.style.display = 'block';
             }
         }
 
         /**
-         * Handles the login logic (Guide button or TL form)
+         * NEW: Helper function to complete the login process
          */
-        function handleAppLogin(e) {
-            e.preventDefault();
-            const ein = einInput.value.trim();
-            const tlCode = tlCodeInput.value.trim();
-
-            if (!ein) {
-                loginErrorMsg.textContent = 'Please enter your EIN.';
-                loginErrorMsg.classList.remove('hidden');
-                return;
-            }
-
-            // This is where you would validate the TL code.
-            // For this demo, we'll accept any non-empty code as a "TL".
-            if (tlCode) {
-                userRole = 'tl';
-            } else {
-                userRole = 'guide';
-            }
-            
-            userEIN = ein; // Save the EIN
+        async function loginSuccess(role, name) { // MODIFIED: ein to name
+            userRole = role;
+            userName = name; // MODIFIED
 
             // Save to localStorage
             localStorage.setItem('userRole', userRole);
-            localStorage.setItem('userEIN', userEIN);
+            localStorage.setItem('userName', userName); // MODIFIED
             
+            // --- REMOVED: The old flat log activity ---
+
             // Set default page based on role
             if (userRole === 'tl') {
                 currentPage = 'submit';
@@ -528,16 +671,93 @@
 
             loginErrorMsg.classList.add('hidden');
             loginModal.classList.add('hidden'); // Hide modal
+            appLoader.classList.remove('hidden'); // Show loader
             initializeAppLogic(); // Start the main app
         }
+
+
+        /**
+         * Handles the login logic (Guide button or TL form)
+         * MODIFIED: Now async and checks Firestore for TL code
+         */
+        async function handleAppLogin(e) {
+            e.preventDefault();
+            const name = nameInput.value.trim(); // MODIFIED
+            const tlCode = tlCodeInput.value.trim();
+
+            if (!name) { // MODIFIED
+                loginErrorMsg.textContent = 'Please enter your Name.'; // MODIFIED
+                loginErrorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Set loading state
+            loginButton.disabled = true;
+            loginButton.textContent = 'Checking...'; // MODIFIED
+            loginErrorMsg.classList.add('hidden');
+
+            try {
+                // --- ADDED: Uniqueness Check ---
+                // We check if the name (case-insensitive) is taken by ANOTHER user.
+                const name_lowercase = name.toLowerCase();
+                const usersQuery = query(collection(db, usersCollectionPath), where("name_lowercase", "==", name_lowercase));
+                const querySnapshot = await getDocs(usersQuery);
+                
+                let isNameTakenByOther = false;
+                if (!querySnapshot.empty) {
+                    querySnapshot.forEach(doc => {
+                        // If a doc with this name exists, check if it's NOT our
+                        // own doc. If it's not, the name is taken.
+                        if (doc.id !== userId) { 
+                            isNameTakenByOther = true;
+                        }
+                    });
+                }
+
+                if (isNameTakenByOther) {
+                    throw new Error(`The name "${name}" is already in use.`);
+                }
+                // --- End Uniqueness Check ---
+
+                // If name is not taken (or it's ours), proceed with TL code check
+                loginButton.textContent = 'Logging in...';
+
+                if (tlCode) {
+                    // A TL code was entered, check if it's valid
+                    const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
+                    const tlCodeDoc = await getDoc(tlCodeRef);
+
+                    if (tlCodeDoc.exists()) {
+                        // Valid TL code
+                        loginSuccess('tl', name); // MODIFIED
+                    } else {
+                        // Invalid TL code
+                        throw new Error("Invalid TL Code. Please try again.");
+                    }
+                } else {
+                    // No TL code, log in as guide
+                    loginSuccess('guide', name); // MODIFIED
+                }
+            } catch (error) {
+                // Handle any errors (invalid code, network issues)
+                console.error("Login Error: ", error);
+                loginErrorMsg.textContent = error.message;
+                loginErrorMsg.classList.remove('hidden');
+                // Reset login button
+                loginButton.disabled = false;
+                loginButton.textContent = 'Login';
+            }
+        }
+
+        // <!-- FIX: Removed the duplicate, non-async handleAppLogin function -->
 
         /**
          * Logs the user out by clearing their role and reloading
          */
         function handleLogout() {
-            // Clear both role and EIN
+            // Clear both role and Name
             localStorage.removeItem('userRole');
-            localStorage.removeItem('userEIN');
+            localStorage.removeItem('userName'); // MODIFIED
             location.reload();
         }
 
@@ -546,14 +766,14 @@
          * If not, shows the login modal. If so, starts the app.
          */
         function checkAppLogin() {
-            // Check for both role and EIN
+            // Check for both role and Name
             const savedRole = localStorage.getItem('userRole');
-            const savedEIN = localStorage.getItem('userEIN');
+            const savedName = localStorage.getItem('userName'); // MODIFIED
             
-            if (savedRole && savedEIN) {
+            if (savedRole && savedName) { // MODIFIED
                 // User is already "logged in", set globals and start the app
                 userRole = savedRole;
-                userEIN = savedEIN;
+                userName = savedName; // MODIFIED
                 loginModal.classList.add('hidden');
 
                 // Set default page based on role (for page load)
@@ -563,52 +783,93 @@
                     currentPage = 'known';
                 }
 
+                loginModal.classList.add('hidden');
+                appLoader.classList.remove('hidden'); // ADDED: Show loader
                 initializeAppLogic();
             } else {
-                // No role/EIN saved, show the login modal
+                // No role/Name saved, show the login modal
                 loginModal.classList.remove('hidden');
+                appLoader.classList.add('hidden'); // ADDED: Ensure loader is hidden
             }
         }
         
         /**
-         * Contains the main app logic that runs *after* a role is set
+         * NEW: Initializes the Firebase app, db, and auth objects.
+         * This must be called before any other Firebase operations.
          */
-        async function initializeAppLogic() {
-            // 1. Set up UI based on role
-            renderUIForRole();
-            
-            // 2. Set user EIN in header
-            userEinDisplay.textContent = userEIN;
-
+        function initializeFirebase() {
             // 3. Initialize Firebase
             // -----------------------------------------------------------------
             // --- IMPORTANT: PASTE YOUR OWN FIREBASE CONFIG OBJECT HERE ---
             // (You get this from your Firebase Project Settings)
             // -----------------------------------------------------------------
             // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-                const firebaseConfig = {
+                let firebaseConfig = { // CHANGED to let
+                    apiKey: "YOUR_API_KEY",
+                    authDomain: "YOUR_AUTH_DOMAIN",
+                    projectId: "YOUR_PROJECT_ID",
+                    storageBucket: "YOUR_STORAGE_BUCKET",
+                    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+                    appId: "YOUR_APP_ID",
+                    measurementId: "YOUR_MEASUREMENT_ID"
+                };
+            // -----------------------------------------------------------------
+            // FALLBACK Config (if the one above is not filled)
+            if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+                console.warn("Using placeholder Firebase config. Please update `firebaseConfig` in the script.");
+                 const placeholderConfig = {
                     apiKey: "AIzaSyBeci550NSuYHxGNctUPCEozou92w8n0Rw",
                     authDomain: "my-bug-board.firebaseapp.com",
                     projectId: "my-bug-board",
-                    storageBucket: "my-bug-board.firebasestorage.app",
+                    storageBucket: "my-bug-board.appspot.com",
                     messagingSenderId: "276540108265",
                     appId: "1:276540108265:web:7f32c71f66e34f4d582f78",
                     measurementId: "G-Y6BL20YLJW"
                 };
+                firebaseConfig = placeholderConfig; // CHANGED to direct assignment
+            }
             // -----------------------------------------------------------------
+
 
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             setLogLevel('debug');
+        }
 
-            // 4. Sign in the user (Firebase auth)
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid; // This is the ANONYMOUS id, not the EIN
-                    
-                    ticketsCollectionRef = collection(db, ticketsCollectionPath);
-                    onSnapshot(query(ticketsCollectionRef), renderApp);
+        /**
+         * Contains the main app logic that runs *after* a role is set
+         * MOVED Firebase init to initializeFirebase()
+         */
+        async function initializeAppLogic() {
+            // 1. Set up UI based on role
+            renderUIForRole();
+            
+            // 2. Set user Name in header
+            userNameDisplay.textContent = userName; // MODIFIED
+
+            // --- MOVED onAuthStateChanged to main() ---
+
+            // --- ADDED: Create/Update User Document ---
+            // This is the new "hub" for this user.
+            // We use setDoc with merge:true to create the doc on first login
+            // and update the lastLogin timestamp on every subsequent login.
+            try {
+                const userRef = doc(db, usersCollectionPath, userId);
+                await setDoc(userRef, {
+                    name: userName,
+                    role: userRole,
+                    lastLogin: serverTimestamp(),
+                    // ADDED: lowercase name for querying
+                    name_lowercase: userName.trim().toLowerCase() 
+                }, { merge: true });
+            } catch (error) { // <-- FIX #1: Corrected catch block syntax
+                console.error("Failed to create/update user document: ", error);
+            }
+            // --- End User Document ---
+            
+            ticketsCollectionRef = collection(db, ticketsCollectionPath);
+            onSnapshot(query(ticketsCollectionRef), renderApp);
 
                     // Seed permanent issues on load
                     await seedPermanentIssues();
@@ -618,12 +879,22 @@
                     
                     // Listen for clicks on the parent lists
                     newTicketsList.addEventListener('click', handleListClicks);
-                    knownTicketsList.addEventListener('click', handleListClicks);
+                    // UPDATED: Listen on the two new lists
+                    persistentIssuesList.addEventListener('click', handleListClicks);
+                    newIssuesList.addEventListener('click', handleListClicks);
                     completedTicketsList.addEventListener('click', handleListClicks); 
 
                     // Modal listeners
                     modalCancelBtn.addEventListener('click', hideModal);
                     affectedForm.addEventListener('submit', handleAffectedSubmit);
+
+                    // NEW Complete Modal listeners
+                    completeModalCancelBtn.addEventListener('click', hideCompleteModal);
+                    completeForm.addEventListener('submit', handleCompleteSubmit);
+
+                    // ADDED: Download button listeners
+                    downloadCompletedBtn.addEventListener('click', downloadCompletedReport);
+                    downloadMetricsBtn.addEventListener('click', downloadMetricsReport);
 
                     // New Nav Listeners
                     hamburgerBtn.addEventListener('click', showSidebar);
@@ -637,19 +908,120 @@
                     // 6. Initial Page Render
                     renderPage();
 
-                } else {
-                    // No user, sign in
-                    try {
-                        // For the GitHub version, we ONLY use anonymous sign-in
-                        await signInAnonymously(auth);
-                    } catch (error) {
-                        console.error("Authentication failed: ", error);
-                    }
-                }
-            });
+                    // ADDED: Hide loader AFTER first render
+                    appLoader.classList.add('hidden');
+
+            // --- FIX #2: REMOVED Orphaned 'else' block ---
+            // This 'else' block was a remnant from an old function structure
+            // and was causing the "Unexpected token 'else'" error.
         }
 
         // --- END NEW Role-Based Functions ---
+
+        // --- NEW: Download Report Functions ---
+
+        /**
+         * Helper function to escape text for a CSV cell.
+         * Wraps in quotes, and doubles any existing quotes.
+         */
+        function escapeCSV(str) {
+            if (str === null || str === undefined) str = "";
+            let result = String(str);
+            // Check if it contains commas, quotes, or newlines
+            if (result.search(/("|,|\n)/g) >= 0) {
+                // Wrap in double quotes and escape existing quotes
+                result = '"' + result.replace(/"/g, '""') + '"';
+            }
+            return result;
+        }
+
+        /**
+         * Helper function to trigger a CSV download.
+         */
+        function downloadCSV(csvContent, fileName) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", fileName);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        /**
+         * Generates and downloads a report of completed issues.
+         */
+        function downloadCompletedReport() {
+            if (!globalSnapshot) {
+                console.error("Data not loaded yet.");
+                return;
+            }
+
+            let csvRows = ["Title,Description,Resolution,Completed At"];
+            let completedTickets = [];
+
+            globalSnapshot.forEach(doc => {
+                if (doc.data().status === 'COMPLETE') {
+                    completedTickets.push(doc.data());
+                }
+            });
+
+            // Sort by most recently completed
+            completedTickets.sort((a, b) => (b.completedAt?.toDate() || 0) - (a.completedAt?.toDate() || 0));
+
+            completedTickets.forEach(ticket => {
+                const title = escapeCSV(ticket.title);
+                const desc = escapeCSV(ticket.description);
+                const resolution = escapeCSV(ticket.fixDescription);
+                const completedAt = escapeCSV(ticket.completedAt ? ticket.completedAt.toDate().toLocaleString() : 'N/A');
+                csvRows.push(`${title},${desc},${resolution},${completedAt}`);
+            });
+
+            downloadCSV(csvRows.join("\n"), "completed_issues_report.csv");
+        }
+
+        /**
+         * Generates and downloads a report of the daily metrics.
+         */
+        function downloadMetricsReport() {
+            if (!globalSnapshot) {
+                console.error("Data not loaded yet.");
+                return;
+            }
+
+            let csvRows = ["Title,Daily Affected Count,Type"];
+            let knownTickets = [];
+            const startOfToday = getStartOfDay();
+
+            globalSnapshot.forEach(doc => {
+                const ticket = doc.data();
+                if (ticket.status === 'KNOWN') {
+                    const affectedUsers = ticket.affectedUsers || [];
+                    const dailyAffectedUsers = affectedUsers.filter(user => {
+                        return user.timestamp && user.timestamp.toDate() > startOfToday;
+                    });
+                    ticket.dailyAffectedCount = dailyAffectedUsers.length;
+                    knownTickets.push(ticket);
+                }
+            });
+
+            // Sort by most affected
+            knownTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
+
+            knownTickets.forEach(ticket => {
+                const title = escapeCSV(ticket.title);
+                const count = ticket.dailyAffectedCount;
+                const type = escapeCSV(ticket.isPermanent ? "Permanent" : "New & Important");
+                csvRows.push(`${title},${count},${type}`);
+            });
+
+            downloadCSV(csvRows.join("\n"), "daily_metrics_report.csv");
+        }
+
 
         // --- NEW: Permanent Issue Seeding ---
 
@@ -677,6 +1049,8 @@
                     console.log(`Seeding ${missingTitles.length} missing permanent issues...`);
                     // Use a loop to add each missing doc
                     for (const title of missingTitles) {
+                        // --- FIX 1: START ---
+                        // The addDoc call was broken by a copy-paste error.
                         await addDoc(ticketsCollectionRef, {
                             title: title,
                             description: "This is an ongoing, persistent operational issue.",
@@ -686,6 +1060,7 @@
                             acknowledgedAt: serverTimestamp(),
                             affectedUsers: [] 
                         });
+                        // --- FIX 1: END ---
                     }
                 } else {
                     console.log('All permanent issues already exist.');
@@ -693,6 +1068,67 @@
             } catch (error) {
                 console.error("Error seeding permanent issues: ", error);
             }
+        }
+
+        // <!-- FIX: Changed HTML comment to JS comment -->
+        // ADDED: renderTicketCard function definition
+        /**
+         * Renders a single ticket card into the specified list.
+         */
+        function renderTicketCard(listElement, ticket) {
+            const affectedUsers = ticket.affectedUsers || [];
+
+            // --- START OF DAILY RESET LOGIC ---
+            const startOfToday = getStartOfDay();
+
+            // 1. Filter the list to only include votes from "today"
+            const dailyAffectedUsers = affectedUsers.filter(user => {
+                // Ensure timestamp exists and can be converted to a Date
+                return user.timestamp && user.timestamp.toDate() > startOfToday;
+            });
+            
+            // 2. Use the "daily" count for all UI
+            const numAffected = dailyAffectedUsers.length;
+            
+            // 4. Check if this user is in the "daily" list
+            const userIsAffected = dailyAffectedUsers.some(user => user.name === userName); // MODIFIED
+            // --- END OF DAILY RESET LOGIC ---
+
+            // --- START: Time Open Logic ---
+            let timeOpenHtml = '';
+            if (ticket.isPermanent) {
+                // MODIFIED: Color
+                timeOpenHtml = '<span class="text-slate-500 font-medium text-primary">Permanent Issue</span>';
+            } else {
+                timeOpenHtml = `<span class="text-slate-500">Open for ${formatTimeAgo(ticket.acknowledgedAt || ticket.createdAt)}</span>`;
+            }
+            // --- END: Time Open Logic ---
+
+            // Conditionally hide "Complete" button for permanent issues
+            const completeButtonHtml = ticket.isPermanent
+                ? '' // Don't render the button if the issue is permanent
+                // MODIFIED: Color
+                : `<button data-id="${ticket.id}" class="complete-btn w-full text-sm font-medium py-1 px-3 rounded-lg transition bg-primary text-white hover:bg-primary/90 mt-2">
+                        Mark as Complete (Admin)
+                    </button>`;
+
+            const el = document.createElement('div');
+            el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
+            el.innerHTML = `
+                <h3 class="font-semibold text-lg">${ticket.title}</h3>
+                <p class="text-sm text-slate-600 mb-3">${ticket.description}</p>
+                <div class="flex justify-between text-sm mb-3">
+                    <!-- MODIFIED: Color -->
+                    <span class="font-medium text-slate-700">Affected: <strong class="text-secondary">${numAffected}</strong></span>
+                    ${timeOpenHtml} <!-- MODIFIED -->
+                </div>
+                <!-- MODIFIED: Color -->
+                <button data-id="${ticket.id}" class="affected-btn w-full text-sm font-medium py-1 px-3 rounded-lg transition ${userIsAffected ? 'bg-slate-300 text-slate-600 cursor-not-allowed' : 'bg-secondary text-white hover:bg-secondary/90'}" ${userIsAffected ? 'disabled' : ''}>
+                    ${userIsAffected ? 'You reported this' : "I've been affected by this"}
+                </button>
+                ${completeButtonHtml}
+            `;
+            listElement.appendChild(el);
         }
 
         /**
@@ -705,17 +1141,25 @@
 
             // Clear lists
             newTicketsList.innerHTML = '';
-            knownTicketsList.innerHTML = '';
+            // UPDATED: Clear the two new lists
+            persistentIssuesList.innerHTML = '';
+            newIssuesList.innerHTML = '';
             completedTicketsList.innerHTML = '';
 
             // Metric counters
             let totalAffectedCount = 0;
-            let uniqueAffectedEINs = new Set(); // For unique guide counting
+            let uniqueAffectedNames = new Set(); // MODIFIED: For unique user counting
             
             // Arrays for sorting
             let pendingTickets = [];
-            let knownTickets = [];
+            // UPDATED: Use two arrays for known tickets
+            let persistentTickets = [];
+            let newAndImportantTickets = [];
             let completedTicketsArray = []; 
+            let allKnownTickets = []; // For metrics
+            
+            // Get start of today for metrics
+            const startOfToday = getStartOfDay();
 
             if (querySnapshot.empty) {
                 // Handled below by checking array lengths
@@ -729,7 +1173,33 @@
                     pendingTickets.push({ id: ticketId, ...ticket });
                 } 
                 else if (ticket.status === 'KNOWN') {
-                    knownTickets.push({ id: ticketId, ...ticket });
+                    const ticketWithId = { id: ticketId, ...ticket };
+                    
+                    // --- Calculate Daily Metrics ---
+                    const affectedUsers = ticket.affectedUsers || [];
+                    const dailyAffectedUsers = affectedUsers.filter(user => {
+                        return user.timestamp && user.timestamp.toDate() > startOfToday;
+                    });
+                    
+                    // Add daily counts to the ticket object for sorting
+                    ticketWithId.dailyAffectedCount = dailyAffectedUsers.length;
+                    
+                    // Add to global daily metrics
+                    totalAffectedCount += dailyAffectedUsers.length;
+                    dailyAffectedUsers.forEach(user => {
+                        if (user.name) { // MODIFIED
+                            uniqueAffectedNames.add(user.name); // MODIFIED
+                        }
+                    });
+                    // --- End Daily Metrics ---
+
+                    // UPDATED: Sort into persistent or new
+                    if (ticket.isPermanent) {
+                        persistentTickets.push(ticketWithId);
+                    } else {
+                        newAndImportantTickets.push(ticketWithId);
+                    }
+                    allKnownTickets.push(ticketWithId); // Add to metrics list
                 }
                 else if (ticket.status === 'COMPLETE') {
                     completedTicketsArray.push({ id: ticketId, ...ticket }); 
@@ -747,7 +1217,8 @@
                     el.innerHTML = `
                         <h3 class="font-semibold text-lg">${ticket.title}</h3>
                         <p class="text-sm text-slate-600 mb-2">${ticket.description}</p>
-                        <p class="text-xs text-slate-400 mb-1">Submitted by EIN: ${ticket.ein} (Code: ${ticket.uniqueCode})</p>
+                        <!-- MODIFIED: "EIN" to "Name" -->
+                        <p class="text-xs text-slate-400 mb-1">Submitted by Name: ${ticket.name} (Code: ${ticket.uniqueCode})</p>
                         <p class="text-xs text-slate-400 mb-3">Submitted ${formatTimeAgo(ticket.createdAt)}</p>
                         <button data-id="${ticket.id}" class="approve-btn w-full bg-green-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-green-600 transition">
                             Approve (Move to Known)
@@ -761,64 +1232,46 @@
 
             // --- RENDER KNOWN TICKETS (SORTED) ---
             
-            // Sort by most affected users first
-            knownTickets.sort((a, b) => (b.affectedUsers?.length || 0) - (a.affectedUsers?.length || 0));
+            // Sort by most *daily* affected users first
+            persistentTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
+            newAndImportantTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
 
-            if (knownTickets.length > 0) {
-                knownTickets.forEach(ticket => {
-                    const affectedUsers = ticket.affectedUsers || [];
-                    const numAffected = affectedUsers.length;
-                    totalAffectedCount += numAffected;
-
-                    // Add EINs to the Set for unique counting
-                    affectedUsers.forEach(user => {
-                        if (user.ein) { 
-                            uniqueAffectedEINs.add(user.ein);
-                        }
-                    });
-
-                    // Check if *this user's* EIN is in the list
-                    const userIsAffected = affectedUsers.some(user => user.ein === userEIN);
-
-                    // Conditionally hide "Complete" button for permanent issues
-                    const completeButtonHtml = ticket.isPermanent
-                        ? '' // Don't render the button if the issue is permanent
-                        : `<button data-id="${ticket.id}" class="complete-btn w-full text-sm font-medium py-1 px-3 rounded-lg transition bg-blue-500 text-white hover:bg-blue-600 mt-2">
-                                Mark as Complete (Admin)
-                           </button>`;
-
-                    const el = document.createElement('div');
-                    el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
-                    el.innerHTML = `
-                        <h3 class="font-semibold text-lg">${ticket.title}</h3>
-                        <p class="text-sm text-slate-600 mb-3">${ticket.description}</p>
-                        <div class="flex justify-between text-sm mb-3">
-                            <span class="font-medium text-slate-700">Affected: <strong class="text-red-600">${numAffected}</strong></span>
-                            <span class="text-slate-500">Open for ${formatTimeAgo(ticket.acknowledgedAt || ticket.createdAt)}</span>
-                        </div>
-                        <button data-id="${ticket.id}" class="affected-btn w-full text-sm font-medium py-1 px-3 rounded-lg transition ${userIsAffected ? 'bg-slate-300 text-slate-600 cursor-not-allowed' : 'bg-yellow-500 text-white hover:bg-yellow-600'}" ${userIsAffected ? 'disabled' : ''}>
-                            ${userIsAffected ? 'You reported this' : "I've been affected by this"}
-                        </button>
-                        ${completeButtonHtml}
-                    `;
-                    knownTicketsList.appendChild(el);
+            // Render Persistent Issues
+            if (persistentTickets.length > 0) {
+                persistentTickets.forEach(ticket => {
+                    renderTicketCard(persistentIssuesList, ticket);
                 });
             } else {
-                knownTicketsList.innerHTML = '<p class="text-slate-400">No known issues...</p>';
+                persistentIssuesList.innerHTML = '<p class="text-slate-400">No persistent issues...</p>';
             }
-            
+
+            // Render New & Important Issues
+            if (newAndImportantTickets.length > 0) {
+                newAndImportantTickets.forEach(ticket => {
+                    renderTicketCard(newIssuesList, ticket);
+                });
+            } else {
+                newIssuesList.innerHTML = '<p class="text-slate-400">No new known issues...</p>';
+            }
+
             // --- RENDER COMPLETED TICKETS ---
             if (completedTicketsArray.length > 0) {
                  // Sort completed tickets by most recent first
                 completedTicketsArray.sort((a, b) => (b.completedAt?.toDate() || 0) - (a.completedAt?.toDate() || 0)); 
                 
                 completedTicketsArray.forEach(ticket => { 
+                    // ADDED: Check for fix description and create HTML
+                    const fixDescHtml = ticket.fixDescription
+                        ? `<p class="text-sm text-slate-600 mt-2 p-2 bg-green-100/60 rounded-lg"><strong>Resolution:</strong> ${ticket.fixDescription}</p>`
+                        : '';
+
                     const el = document.createElement('div');
                     el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm bg-slate-50';
                     el.innerHTML = `
                         <h3 class="font-semibold text-lg text-slate-500 line-through">${ticket.title}</h3>
                         <p class="text-sm text-slate-500 mb-2">${ticket.description}</p>
                         <p class="text-xs text-slate-400">Completed ${formatTimeAgo(ticket.completedAt)}</p>
+                        ${fixDescHtml} <!-- ADDED -->
                     `;
                     completedTicketsList.appendChild(el);
                 });
@@ -827,16 +1280,19 @@
             }
 
             // --- UPDATE METRICS ---
+            // Metrics are now calculated *daily* in the loop above
             metricTotalAffected.textContent = totalAffectedCount;
-            metricUniqueAffected.textContent = uniqueAffectedEINs.size; // Set unique count
+            metricUniqueAffected.textContent = uniqueAffectedNames.size; // MODIFIED: Set unique count
             
             // --- Update Top 5 List ---
             top5List.innerHTML = ''; // Clear old list
-            const top5Issues = knownTickets.slice(0, 5);
+            // Sort all known tickets by *daily* count for Top 5
+            allKnownTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
+            const top5Issues = allKnownTickets.slice(0, 5);
             
             if (top5Issues.length > 0) {
                 top5Issues.forEach((ticket, index) => {
-                    const numAffected = ticket.affectedUsers?.length || 0;
+                    const numAffected = ticket.dailyAffectedCount || 0; // Use daily count
                     const el = document.createElement('div');
                     el.className = 'flex justify-between items-center p-3 bg-slate-50 rounded-lg';
                     el.innerHTML = `
@@ -844,7 +1300,8 @@
                             <span class="font-bold text-slate-800">${index + 1}.</span>
                             <span class="font-medium ml-2">${ticket.title}</span>
                         </div>
-                        <span class="font-bold text-red-600 text-lg">${numAffected}</span>
+                        <!-- MODIFIED: Color -->
+                        <span class="font-bold text-secondary text-lg">${numAffected}</span>
                     `;
                     top5List.appendChild(el);
                 });
@@ -859,13 +1316,13 @@
                 metricsChart.destroy();
             }
 
-            // 2. Prepare data (Top 5 + "Other")
+            // 2. Prepare data (Top 5 + "Other" based on *daily* count)
             const chartLabels = [];
             const chartData = [];
             let otherCount = 0;
 
-            knownTickets.forEach((ticket, index) => {
-                const count = ticket.affectedUsers?.length || 0;
+            allKnownTickets.forEach((ticket, index) => {
+                const count = ticket.dailyAffectedCount || 0; // Use daily count
                 if (index < 5) {
                     chartLabels.push(ticket.title);
                     chartData.push(count);
@@ -889,20 +1346,21 @@
                         datasets: [{
                             label: '# of Votes',
                             data: chartData,
+                            // MODIFIED: Chart Colors
                             backgroundColor: [
-                                'rgba(239, 68, 68, 0.7)',  // red-500
+                                'rgba(100, 0, 170, 0.7)',  // primary
+                                'rgba(0, 155, 164, 0.7)',  // secondary
                                 'rgba(249, 115, 22, 0.7)', // orange-500
-                                'rgba(234, 179, 8, 0.7)',  // yellow-500
-                                'rgba(34, 197, 94, 0.7)', // green-500
-                                'rgba(59, 130, 246, 0.7)', // blue-500
+                                'rgba(34, 197, 94, 0.7)',  // green-500
+                                'rgba(139, 70, 194, 0.7)', // lighter purple
                                 'rgba(107, 114, 128, 0.7)' // gray-500
                             ],
                             borderColor: [
-                                'rgba(239, 68, 68, 1)',
+                                'rgba(100, 0, 170, 1)',
+                                'rgba(0, 155, 164, 1)',
                                 'rgba(249, 115, 22, 1)',
-                                'rgba(234, 179, 8, 1)',
                                 'rgba(34, 197, 94, 1)',
-                                'rgba(59, 130, 246, 1)',
+                                'rgba(139, 70, 194, 1)',
                                 'rgba(107, 114, 128, 1)'
                             ],
                             borderWidth: 1
@@ -946,25 +1404,40 @@
             e.preventDefault();
             const title = document.getElementById('ticket-title').value;
             const description = document.getElementById('ticket-desc').value;
-            const ein = ticketEinInput.value; // Get auto-filled EIN
+            const name = ticketNameInput.value; // MODIFIED: Get auto-filled Name
             const uniqueCode = document.getElementById('ticket-code').value;
 
-            if (!title || !description || !userId || !ein || !uniqueCode) return;
+            if (!title || !description || !userId || !name || !uniqueCode) return; // MODIFIED
 
             try {
                 await addDoc(ticketsCollectionRef, {
                     title: title,
                     description: description,
-                    ein: ein, // Save the submitter's EIN
+                    name: name, // MODIFIED: Save the submitter's Name
                     uniqueCode: uniqueCode,
                     status: 'PENDING', // Initial status
                     createdAt: serverTimestamp(),
                     submitterId: userId, // Firebase auth ID
                     affectedUsers: [] 
                 });
+
+                // --- MODIFIED: Log activity to the USER'S subcollection ---
+                try {
+                    // Create a ref to the user's specific activity_log
+                    const userActivityLogRef = collection(db, usersCollectionPath, userId, "activity_log");
+                    await addDoc(userActivityLogRef, {
+                        timestamp: serverTimestamp(),
+                        action: 'SUBMIT_TICKET',
+                        ticketTitle: title
+                    });
+                } catch (error) {
+                    console.error("Failed to log submit activity: ", error);
+                }
+                // --- End Log ---
+
                 newTicketForm.reset();
-                // Re-fill EIN after reset
-                ticketEinInput.value = userEIN; 
+                // Re-fill Name after reset
+                ticketNameInput.value = userName; // MODIFIED
                 
                 // Switch to pending page after submission
                 currentPage = 'pending';
@@ -997,12 +1470,8 @@
             // "Complete" Button Click
             if (e.target.classList.contains('complete-btn')) {
                 const ticketId = e.target.dataset.id;
-                const ticketRef = doc(db, ticketsCollectionPath, ticketId);
-                
-                updateDoc(ticketRef, {
-                    status: 'COMPLETE',
-                    completedAt: serverTimestamp()
-                }).catch(error => console.error("Error completing ticket: ", error));
+                // CHANGED: Show modal instead of directly updating
+                showCompleteModal(ticketId);
             }
         }
 
@@ -1012,19 +1481,20 @@
         async function handleAffectedSubmit(e) {
             e.preventDefault();
             const ticketId = affectedTicketIdInput.value;
-            const ein = affectedEinInput.value; // Get auto-filled EIN
+            const name = affectedNameInput.value; // MODIFIED: Get auto-filled Name
             const comments = affectedCommentsInput.value;
             const errorMsg = document.getElementById('modal-error-msg');
 
-            if (!ticketId || !ein || !userId) return;
+            if (!ticketId || !name || !userId) return; // MODIFIED
 
             errorMsg.textContent = '';
             errorMsg.classList.add('hidden');
             
             const newAffectedEntry = {
                 userId: userId, // Firebase auth ID
-                ein: ein,       // User's EIN
+                name: name,       // MODIFIED: User's Name
                 comments: comments,
+                // MODIFIED: Store the timestamp of the report
                 timestamp: new Date() // Use client-side date
             };
 
@@ -1036,19 +1506,43 @@
                     const ticket = ticketDoc.data();
                     const affectedUsers = ticket.affectedUsers || [];
 
-                    // Check if EIN is already in the list
-                    const isAlreadyAffected = affectedUsers.some(user => user.ein === ein);
+                    // MODIFIED: Check if Name is already in the list *for today*
+                    const startOfToday = getStartOfDay();
+                    const isAlreadyAffected = affectedUsers.some(user => {
+                        return user.name === name && // MODIFIED
+                            user.timestamp && 
+                            user.timestamp.toDate() > startOfToday;
+                    });
 
+                    // --- FIX 2: START ---
+                    // This logic was broken by a copy-paste error.
                     if (isAlreadyAffected) {
-                        errorMsg.textContent = 'This EIN has already been registered for this issue.';
+                        errorMsg.textContent = 'You have already reported this issue today.'; // MODIFIED
                         errorMsg.classList.remove('hidden');
                     } else {
+                        // Not already affected, add the new entry
                         affectedUsers.push(newAffectedEntry);
                         await updateDoc(ticketRef, {
                             affectedUsers: affectedUsers
                         });
+
+                        // --- MODIFIED: Log activity to the USER'S subcollection ---
+                        try {
+                            // Create a ref to the user's specific activity_log
+                            const userActivityLogRef = collection(db, usersCollectionPath, userId, "activity_log");
+                            await addDoc(userActivityLogRef, {
+                                timestamp: serverTimestamp(),
+                                action: 'REPORT_AFFECTED',
+                                ticketTitle: ticket.title // Get title from the doc we already fetched
+                            });
+                        } catch (error) {
+                            console.error("Failed to log affected activity: ", error);
+                        }
+                        // --- End Log ---
+
                         hideModal();
                     }
+                    // --- FIX 2: END ---
                 }
             } catch (error) {
                 console.error("Error reporting affected issue: ", error);
@@ -1057,14 +1551,74 @@
             }
         }
 
+        /**
+         * Handle "Complete" Modal Form Submission
+         */
+        async function handleCompleteSubmit(e) {
+            e.preventDefault();
+            const ticketId = completeTicketIdInput.value;
+            const fixDescription = completeDescriptionInput.value.trim();
+
+            if (!ticketId) return;
+            
+            if (!fixDescription) {
+                completeModalErrorMsg.textContent = 'Please provide resolution details.';
+                completeModalErrorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            completeModalErrorMsg.textContent = '';
+            completeModalErrorMsg.classList.add('hidden');
+
+            try {
+                const ticketRef = doc(db, ticketsCollectionPath, ticketId);
+                await updateDoc(ticketRef, {
+                    status: 'COMPLETE',
+                    completedAt: serverTimestamp(),
+                    fixDescription: fixDescription // ADDED
+                });
+                hideCompleteModal();
+            } catch (error) {
+                console.error("Error completing ticket: ", error);
+                completeModalErrorMsg.textContent = 'An error occurred. Please try again.';
+                completeModalErrorMsg.classList.remove('hidden');
+            }
+        }
+
         // --- INITIALIZATION ---
         async function main() {
-            // 1. Attach login modal listeners
-            loginForm.addEventListener('submit', handleAppLogin);
+            // 1. NEW: Initialize Firebase FIRST
+            initializeFirebase();
 
-            // 2. Check for a saved role, which will either show the modal
+            // 2. MODIFIED: Attach login listener *after* we have a userId
+            
+            // 3. Check for a saved role, which will either show the modal
             //    or call initializeAppLogic() to start the app.
-            checkAppLogin();
+            
+            // 4. Sign in the user (Firebase auth)
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // User is signed in (anonymously)
+                    userId = user.uid; // Set the global userId
+                    
+                    // Now that we have a userId, attach the login form listener
+                    loginForm.addEventListener('submit', handleAppLogin);
+                    
+                    // And now, check if they are already logged in via localStorage
+                    checkAppLogin();
+
+                } else {
+                    // No user, sign in
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (error) {
+                        console.error("Anonymous Authentication failed: ", error);
+                        loginModal.classList.remove('hidden');
+                        loginErrorMsg.textContent = "Could not connect to service. Please try again.";
+                        loginErrorMsg.classList.remove('hidden');
+                    }
+                }
+            });
         }
 
         main(); // Run the app
