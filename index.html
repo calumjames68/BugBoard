@@ -73,7 +73,8 @@
                 <button data-page="submit" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Submit New Issue</button>
                 <button data-page="pending" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Pending Issues</button>
                 <button data-page="known" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Known Issues</button>
-                <button data-page="completed" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Completed Issues</button>
+                <!-- MODIFIED: "Completed" to "Fixed" -->
+                <button data-page="completed" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Fixed Issues</button>
                 <button data-page="metrics" class="nav-link w-full text-left p-3 rounded-lg font-medium text-slate-700 hover:bg-slate-100">Metrics</button>
             </nav>
         </div>
@@ -189,11 +190,11 @@
                     </div>
                 </div>
 
-                <!-- Page 4: Completed Issues (Archive) -->
+                <!-- Page 4: MODIFIED: "Completed" to "Fixed" -->
                 <div id="page-completed" class="page-content hidden">
                     <section class="bg-white p-6 rounded-lg shadow-md">
                         <div class="flex justify-between items-center mb-4">
-                            <p class="text-sm text-slate-500">Resolved issues are stored here.</p>
+                            <p class="text-sm text-slate-500">Fixed issues are stored here.</p>
                             <!-- ADDED: Download Button -->
                             <!-- MODIFIED: Color -->
                             <button id="download-completed-btn" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition text-sm">
@@ -202,7 +203,7 @@
                         </div>
                         <div id="completed-tickets-list" class="space-y-4">
                             <!-- Completed tickets will be injected here by JS -->
-                            <p class="text-slate-400">No completed issues...</p>
+                            <p class="text-slate-400">No fixed issues...</p>
                         </div>
                     </section>
                 </div>
@@ -297,9 +298,10 @@
                 <input type="hidden" id="complete-ticket-id">
                 <div id="complete-modal-error-msg" class="text-red-600 text-sm mb-3 hidden"></div>
                 <div class="mb-4">
-                    <label for="complete-description" class="block text-sm font-medium text-slate-700 mb-1">Resolution Details</label>
-                    <!-- MODIFIED: Color -->
-                    <textarea id="complete-description" rows="3" placeholder="Describe the fix or resolution..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required></textarea>
+                    <!-- MODIFIED: "Resolution" to "Resolution/Fix" -->
+                    <label for="complete-description" class="block text-sm font-medium text-slate-700 mb-1">Resolution/Fix Details</label>
+                    <!-- MODIFIED: Color & Placeholder -->
+                    <textarea id="complete-description" rows="3" placeholder="Describe the fix/resolution..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required></textarea>
                 </div>
                 <div class="flex justify-end gap-3">
                     <button type="button" id="complete-modal-cancel-btn" class="bg-slate-200 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition">
@@ -314,6 +316,22 @@
         </div>
     </div>
     
+    <!-- ADDED: New Modal for viewing Affected Guides -->
+    <div id="affected-guides-modal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 opacity-0 pointer-events-none">
+        <div class="modal-content bg-white w-full max-w-lg p-6 rounded-lg shadow-xl transform scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Affected Guides (Today)</h3>
+                <button type="button" id="affected-guides-close-btn" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="affected-guides-list" class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- JS will populate this list -->
+                <p class="text-slate-400">No guides affected today...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- MODIFIED: Role Login Modal (Re-designed with Tabs) -->
     <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-100">
         <div class="bg-white w-full max-w-sm p-8 rounded-lg shadow-xl">
@@ -422,7 +440,7 @@
             'submit': 'Submit New Issue',
             'pending': 'Pending Issues',
             'known': 'Known Issues',
-            'completed': 'Completed Issues',
+            'completed': 'Fixed Issues', // MODIFIED: "Completed" to "Fixed"
             'metrics': 'Metrics'
         };
 
@@ -461,6 +479,11 @@
         const completeDescriptionInput = document.getElementById('complete-description');
         const completeModalCancelBtn = document.getElementById('complete-modal-cancel-btn');
         const completeModalErrorMsg = document.getElementById('complete-modal-error-msg');
+
+        // ADDED: Affected Guides Modal DOM Elements
+        const affectedGuidesModal = document.getElementById('affected-guides-modal');
+        const affectedGuidesList = document.getElementById('affected-guides-list');
+        const affectedGuidesCloseBtn = document.getElementById('affected-guides-close-btn');
 
         // New Nav DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -526,6 +549,15 @@
         }
 
         /**
+         * Formats a timestamp into a simple time string (e.g., "10:30 AM")
+         */
+        function formatTime(timestamp) {
+            if (!timestamp) return '...';
+            const date = timestamp.toDate ? timestamp.toDate() : timestamp;
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        /**
          * Shows the "I've been affected" modal
          */
         function showModal(ticketId) {
@@ -578,6 +610,64 @@
             completeModalErrorMsg.classList.add('hidden');
             completeModal.classList.add('opacity-0', 'pointer-events-none');
             completeModal.querySelector('.modal-content').classList.add('scale-95');
+        }
+
+        /**
+         * ADDED: Shows the "Affected Guides" modal
+         */
+        function showAffectedGuidesModal(ticketId) {
+            if (!globalSnapshot) return;
+            
+            let ticketData = null;
+            globalSnapshot.forEach(doc => {
+                if (doc.id === ticketId) {
+                    ticketData = doc.data();
+                }
+            });
+
+            if (!ticketData) {
+                console.error("Could not find ticket data for modal");
+                return;
+            }
+
+            const startOfToday = getStartOfDay();
+            const dailyAffectedUsers = (ticketData.affectedUsers || []).filter(user => {
+                return user.timestamp && user.timestamp.toDate() > startOfToday;
+            });
+
+            // Sort by most recent
+            dailyAffectedUsers.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+
+            affectedGuidesList.innerHTML = ''; // Clear list
+
+            if (dailyAffectedUsers.length > 0) {
+                dailyAffectedUsers.forEach(user => {
+                    const el = document.createElement('div');
+                    el.className = 'p-3 bg-slate-50 rounded-lg flex justify-between items-center';
+                    el.innerHTML = `
+                        <div>
+                            <p class="font-semibold text-slate-800">${user.name || 'Unknown Name'}</p>
+                            <p class="text-sm text-slate-500">EIN: ${user.ein || 'N/A'}</p>
+                        </div>
+                        <span class="text-sm text-slate-600">Reported at ${formatTime(user.timestamp)}</span>
+                    `;
+                    affectedGuidesList.appendChild(el);
+                });
+            } else {
+                affectedGuidesList.innerHTML = '<p class="text-slate-400">No guides affected today...</p>';
+            }
+
+            affectedGuidesModal.classList.remove('opacity-0', 'pointer-events-none');
+            affectedGuidesModal.querySelector('.modal-content').classList.remove('scale-95');
+        }
+
+        /**
+         * ADDED: Hides the "Affected Guides" modal
+         */
+        function hideAffectedGuidesModal() {
+            affectedGuidesModal.classList.add('opacity-0', 'pointer-events-none');
+            affectedGuidesModal.querySelector('.modal-content').classList.add('scale-95');
+            affectedGuidesList.innerHTML = ''; // Clear list
         }
 
         /**
@@ -871,9 +961,24 @@
             // Check for both role and Name
             const savedRole = localStorage.getItem('userRole');
             const savedName = localStorage.getItem('userName');
-            const savedEIN = localStorage.getItem('userEIN'); // ADDED
+            const savedEIN = localStorage.getItem('userEIN');
             
             if (savedRole && savedName) {
+
+                // ADDED: If they are a guide and EIN is missing, force re-login.
+                // This handles users from before the EIN field was added.
+                if (savedRole === 'guide' && !savedEIN) {
+                    console.warn("Guide data is incomplete (missing EIN). Forcing re-login.");
+                    // Clear all user data
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userEIN');
+                    // We don't need to sign out of auth, just show the login modal
+                    loginModal.classList.remove('hidden');
+                    appLoader.classList.add('hidden');
+                    return; // Stop execution
+                }
+
                 // User is already "logged in", set globals and start the app
                 userRole = savedRole;
                 userName = savedName;
@@ -1031,6 +1136,9 @@
             completeModalCancelBtn.addEventListener('click', hideCompleteModal);
             completeForm.addEventListener('submit', handleCompleteSubmit);
 
+            // ADDED: Affected Guides Modal listener
+            affectedGuidesCloseBtn.addEventListener('click', hideAffectedGuidesModal);
+
             // ADDED: Download button listeners
             downloadCompletedBtn.addEventListener('click', downloadCompletedReport);
             downloadMetricsBtn.addEventListener('click', downloadMetricsReport);
@@ -1096,7 +1204,8 @@
                 return;
             }
 
-            let csvRows = ["Title,Description,Resolution,Submitted By,Approved By,Resolved By,Completed At"]; // MODIFIED: Added columns
+            // MODIFIED: "Resolution" to "Resolution/Fix"
+            let csvRows = ["Title,Description,Resolution/Fix,Submitted By,Approved By,Resolved By,Completed At"];
             let completedTickets = [];
 
             globalSnapshot.forEach(doc => {
@@ -1119,7 +1228,8 @@
                 csvRows.push(`${title},${desc},${resolution},${submittedBy},${approvedBy},${resolvedBy},${completedAt}`); // MODIFIED
             });
 
-            downloadCSV(csvRows.join("\n"), "completed_issues_report.csv");
+            // MODIFIED: Filename
+            downloadCSV(csvRows.join("\n"), "fixed_issues_report.csv");
         }
 
         /**
@@ -1267,6 +1377,26 @@
             }
             // --- END MODIFICATION ---
 
+            // --- ADDED: Logic for Affected Count Button ---
+            let affectedCountHtml = '';
+            const affectedText = userRole === 'tl' ? 'Guides Affected' : 'Daily Affected';
+            if (userRole === 'tl' && numAffected > 0) {
+                // TLs see a clickable button if count > 0
+                affectedCountHtml = `
+                    <button data-id="${ticket.id}" class="view-affected-btn font-medium text-slate-700 hover:text-primary hover:underline">
+                        ${affectedText}: <strong class="text-secondary/90">${numAffected}</strong>
+                    </button>
+                `;
+            } else {
+                // Guides or TLs with 0 count see static text
+                affectedCountHtml = `
+                    <span class="font-medium text-slate-700">
+                        ${affectedText}: <strong class="text-secondary/90">${numAffected}</strong>
+                    </span>
+                `;
+            }
+            // --- END ---
+
             const el = document.createElement('div');
             el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
             
@@ -1282,8 +1412,7 @@
                 </div>
 
                 <div class="flex justify-between items-center text-sm mb-3">
-                    <!-- MODIFIED: Color -->
-                    <span class="font-medium text-slate-700">Daily Affected: <strong class="text-secondary/90">${numAffected}</strong></span>
+                    ${affectedCountHtml} <!-- MODIFIED -->
                     <span class="font-medium ${ticket.isPermanent ? 'text-primary' : 'text-slate-500'}">${timeOpenHtml}</span>
                 </div>
                 <!-- MODIFIED: Color -->
@@ -1406,12 +1535,13 @@
                 completedTicketsArray.forEach(ticket => { 
                     // ADDED: Check for fix description and create HTML
                     const fixDescHtml = ticket.fixDescription
-                        ? `<p class="text-sm text-slate-600 mt-2 p-2 bg-green-50 rounded-lg"><strong>Resolution:</strong> ${ticket.fixDescription}</p>`
+                        // MODIFIED: "Resolution" to "Resolution/Fix"
+                        ? `<p class="text-sm text-slate-600 mt-2 p-2 bg-green-50 rounded-lg"><strong>Resolution/Fix:</strong> ${ticket.fixDescription}</p>`
                         : '';
                     
                     // ADDED: Resolver name
                     const resolverHtml = ticket.resolverName
-                        ? `<p class="text-xs text-slate-500 mt-2">Resolved by: <strong class="text-slate-700">${ticket.resolverName}</strong></p>`
+                        ? `<p class="text-xs text-slate-500 mt-2">Fixed by: <strong class="text-slate-700">${ticket.resolverName}</strong></p>`
                         : '';
 
                     const el = document.createElement('div');
@@ -1419,14 +1549,16 @@
                     el.innerHTML = `
                         <h3 class="font-semibold text-lg text-slate-500 line-through">${ticket.title}</h3>
                         <p class="text-sm text-slate-500 mb-2">${ticket.description}</p>
-                        <p class="text-xs text-slate-400">Completed ${formatTimeAgo(ticket.completedAt)}</p>
+                        <!-- MODIFIED: "Completed" to "Fixed" -->
+                        <p class="text-xs text-slate-400">Fixed ${formatTimeAgo(ticket.completedAt)}</p>
                         ${fixDescHtml} <!-- ADDED -->
                         ${resolverHtml} <!-- ADDED -->
                     `;
                     completedTicketsList.appendChild(el);
                 });
             } else {
-                completedTicketsList.innerHTML = '<p class="text-slate-400">No completed issues...</p>';
+                // MODIFIED: "completed" to "fixed"
+                completedTicketsList.innerHTML = '<p class="text-slate-400">No fixed issues...</p>';
             }
 
             // --- UPDATE METRICS ---
@@ -1638,6 +1770,13 @@
                 // CHANGED: Show modal instead of directly updating
                 showCompleteModal(ticketId);
             }
+
+            // ADDED: "View Affected" Button Click
+            const viewBtn = e.target.closest('.view-affected-btn');
+            if (viewBtn) {
+                const ticketId = viewBtn.dataset.id;
+                showAffectedGuidesModal(ticketId);
+            }
         }
 
         /**
@@ -1658,6 +1797,7 @@
             const newAffectedEntry = {
                 userId: userId, // Firebase auth ID
                 name: name,       // MODIFIED: User's Name
+                ein: userEIN,     // ADDED: User's EIN
                 comments: comments,
                 // MODIFIED: Store the timestamp of the report
                 timestamp: new Date() // Use client-side date
