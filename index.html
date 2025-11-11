@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bug Board</title>
     <!-- 1. Load Tailwind CSS -->
-    <!-- FIX: Corrected the Tailwind CSS script URL -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 2. Configure Tailwind for Inter font -->
+    <!-- 2. Configure Tailwind for Inter font AND BT/EE Colors -->
     <script>
         tailwind.config = {
             theme: {
@@ -15,10 +14,10 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
-                    // ADDED: BT/EE Color Palette
                     colors: {
-                        'primary': '#6400aa',
-                        'secondary': '#009ba4',
+                        // BT/EE Palette
+                        'primary': '#6400aa',   // BT Purple
+                        'secondary': '#009ba4', // EE Teal
                     }
                 },
             },
@@ -50,9 +49,20 @@
         }
     </style>
 </head>
-<!-- MODIFIED: Changed background to white -->
 <body class="font-sans bg-white text-slate-800 min-h-screen">
     
+    <!-- ADDED: App Loader Screen -->
+    <div id="app-loader" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white hidden">
+        <div class="text-center">
+            <!-- MODIFIED: Color -->
+            <svg class="animate-spin h-8 w-8 text-primary mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-slate-700">Loading Bug Board...</h3>
+        </div>
+    </div>
+
     <!-- Sidebar -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 opacity-0 pointer-events-none"></div>
     <div id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-40 transform -translate-x-full flex flex-col">
@@ -69,23 +79,9 @@
         </div>
         <!-- Log Out Button -->
         <div class="p-5 border-t border-slate-200">
-            <!-- MODIFIED: Color -->
-            <button id="logout-btn" class="w-full text-left p-3 rounded-lg font-medium text-slate-500 hover:bg-secondary/10 hover:text-secondary">
+            <button id="logout-btn" class="w-full text-left p-3 rounded-lg font-medium text-slate-500 hover:bg-red-50 hover:text-red-600">
                 Log Out / Switch Role
             </button>
-        </div>
-    </div>
-
-    <!-- ADDED: App Loader Screen -->
-    <!-- MODIFIED: Changed background to white -->
-    <div id="app-loader" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white hidden">
-        <div class="text-center">
-            <!-- MODIFIED: Color -->
-            <svg class="animate-spin h-8 w-8 text-primary mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <h3 class="text-xl font-semibold text-slate-700">Loading Bug Board...</h3>
         </div>
     </div>
 
@@ -114,8 +110,7 @@
                             User Name: <strong id="user-name-display" class="text-slate-900">Loading...</strong>
                         </div>
                         <!-- Logout Button -->
-                        <!-- MODIFIED: Color -->
-                        <button id="header-logout-btn" class="p-2 text-slate-500 hover:text-secondary" title="Log Out / Switch Role">
+                        <button id="header-logout-btn" class="p-2 text-slate-500 hover:text-red-600" title="Log Out / Switch Role">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         </button>
                     </div>
@@ -124,7 +119,7 @@
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-grow p-4 md:p-8">
+        <main class="flex-grow p-4 md:p-8 bg-slate-100"> <!-- MODIFIED: Body background to main -->
             <div class="max-w-7xl mx-auto">
 
                 <!-- Page 1: Submit Ticket (TL View) -->
@@ -141,17 +136,15 @@
                                 <!-- MODIFIED: Color -->
                                 <textarea id="ticket-desc" rows="4" placeholder="Describe the issue in detail..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required></textarea>
                             </div>
-                            <!-- MODIFIED: Name field will be auto-filled -->
+                            <!-- MODIFIED: "EIN" to "Name" -->
                             <div class="mb-4">
                                 <label for="ticket-name" class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
                                 <input type="text" id="ticket-name" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm bg-slate-100" readonly required>
                             </div>
-                            <div class="mb-4">
-                                <label for="ticket-code" class="block text-sm font-medium text-slate-700 mb-1">Unique Code</label>
-                                <!-- MODIFIED: Color -->
-                                <input type="text" id="ticket-code" placeholder="e.g., 'ALPHA123'" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
-                            </div>
-                            <!-- MODIFIED: Color -->
+                            
+                            <!-- REMOVED: Unique Code field -->
+                            
+                            <!-- MODIFIED: Color & Reset ID -->
                             <button type="submit" class="w-full bg-primary text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary/90 transition duration-150">
                                 Submit Issue
                             </button>
@@ -171,33 +164,30 @@
                 </div>
 
                 <!-- Page 3: Known Issues (Guide View) -->
-                <!-- UPDATED SECTION -->
                 <div id="page-known" class="page-content hidden">
-                    <p class="text-sm text-slate-500 mb-4">Guides can report if they are affected. Lists are sorted by most affected.</p>
+                    <!-- MODIFIED: 2-column layout -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         
                         <!-- Column 1: Persistent Issues -->
                         <section class="bg-white p-6 rounded-lg shadow-md">
-                            <!-- MODIFIED: Color -->
                             <h2 class="text-xl font-semibold text-primary mb-4">Persistent Issues</h2>
+                            <p class="text-sm text-slate-500 mb-4">Ongoing operational issues. Report if you are affected daily.</p>
                             <div id="persistent-issues-list" class="space-y-4">
-                                <!-- Persistent tickets will be injected here by JS -->
                                 <p class="text-slate-400">No persistent issues...</p>
                             </div>
                         </section>
-                        
+
                         <!-- Column 2: New & Important Issues -->
                         <section class="bg-white p-6 rounded-lg shadow-md">
                             <!-- MODIFIED: Color -->
                             <h2 class="text-xl font-semibold text-secondary mb-4">New & Important Issues</h2>
+                            <p class="text-sm text-slate-500 mb-4">Approved, non-permanent issues. Report if you are affected.</p>
                             <div id="new-issues-list" class="space-y-4">
-                                <!-- New/non-persistent known tickets will be injected here by JS -->
-                                <p class="text-slate-400">No new known issues...</p>
+                                <p class="text-slate-400">No new issues...</p>
                             </div>
                         </section>
                     </div>
                 </div>
-                <!-- END UPDATED SECTION -->
 
                 <!-- Page 4: Completed Issues (Archive) -->
                 <div id="page-completed" class="page-content hidden">
@@ -205,6 +195,7 @@
                         <div class="flex justify-between items-center mb-4">
                             <p class="text-sm text-slate-500">Resolved issues are stored here.</p>
                             <!-- ADDED: Download Button -->
+                            <!-- MODIFIED: Color -->
                             <button id="download-completed-btn" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition text-sm">
                                 Download Report (CSV)
                             </button>
@@ -221,6 +212,7 @@
                     <section class="bg-white p-6 rounded-lg shadow-md">
                         <!-- ADDED: Download Button Wrapper -->
                         <div class="flex justify-end mb-4">
+                            <!-- MODIFIED: Color -->
                             <button id="download-metrics-btn" class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition text-sm">
                                 Download Report (CSV)
                             </button>
@@ -229,16 +221,16 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                             <!-- Metric Display 1 -->
                             <!-- MODIFIED: Color -->
-                            <div class="p-4 bg-secondary/10 rounded-lg">
-                                <div class="text-sm text-secondary/90">Total "Affected" Reports</div>
-                                <div id="metric-total-affected" class="text-3xl font-bold text-secondary">0</div>
+                            <div class="p-4 bg-primary/10 rounded-lg">
+                                <div class="text-sm text-primary/80">Total "Affected" Reports (Today)</div>
+                                <div id="metric-total-affected" class="text-3xl font-bold text-primary">0</div>
                             </div>
                             <!-- Metric Display 2 -->
                             <!-- MODIFIED: Color -->
-                            <div class="p-4 bg-primary/10 rounded-lg">
+                            <div class="p-4 bg-secondary/10 rounded-lg">
                                 <!-- MODIFIED: "Guides" to "Users" -->
-                                <div class="text-sm text-primary/90">Unique Affected Users</div>
-                                <div id="metric-unique-affected" class="text-3xl font-bold text-primary">0</div>
+                                <div class="text-sm text-secondary/80">Unique Affected Users (Today)</div>
+                                <div id="metric-unique-affected" class="text-3xl font-bold text-secondary">0</div>
                             </div>
                         </div>
 
@@ -246,7 +238,7 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <!-- Column 1: Top 5 List -->
                             <div>
-                                <h3 class="text-xl font-semibold mb-4 text-slate-800">Top 5 Most Affected Issues</h3>
+                                <h3 class="text-xl font-semibold mb-4 text-slate-800">Top 5 Most Affected Issues (Today)</h3>
                                 <div id="top-5-list" class="space-y-3">
                                     <!-- JS will populate this -->
                                     <p class="text-slate-400">No issues to display...</p>
@@ -254,7 +246,7 @@
                             </div>
                             <!-- Column 2: Chart -->
                             <div>
-                                <h3 class="text-xl font-semibold mb-4 text-slate-800">Issue Vote Distribution</h3>
+                                <h3 class="text-xl font-semibold mb-4 text-slate-800">Issue Vote Distribution (Today)</h3>
                                 <div class="relative w-full max-w-md mx-auto">
                                     <canvas id="metrics-pie-chart"></canvas>
                                 </div>
@@ -275,7 +267,7 @@
                 <input type="hidden" id="affected-ticket-id">
                 <!-- New Error Message Div -->
                 <div id="modal-error-msg" class="text-red-600 text-sm mb-3 hidden"></div>
-                <!-- MODIFIED: Name field will be auto-filled -->
+                <!-- MODIFIED: "EIN" to "Name" -->
                 <div class="mb-4">
                     <label for="affected-name" class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
                     <input type="text" id="affected-name" class="w-full p-2 border border-slate-300 rounded-lg shadow-sm bg-slate-100" readonly required>
@@ -306,7 +298,8 @@
                 <div id="complete-modal-error-msg" class="text-red-600 text-sm mb-3 hidden"></div>
                 <div class="mb-4">
                     <label for="complete-description" class="block text-sm font-medium text-slate-700 mb-1">Resolution Details</label>
-                    <textarea id="complete-description" rows="3" placeholder="Describe the fix or resolution..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm" required></textarea>
+                    <!-- MODIFIED: Color -->
+                    <textarea id="complete-description" rows="3" placeholder="Describe the fix or resolution..." class="w-full p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required></textarea>
                 </div>
                 <div class="flex justify-end gap-3">
                     <button type="button" id="complete-modal-cancel-btn" class="bg-slate-200 text-slate-800 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition">
@@ -322,8 +315,8 @@
     </div>
     
     <!-- NEW: Role Login Modal (Re-designed) -->
-    <!-- MODIFIED: Changed background to white -->
-    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white">
+    <!-- MODIFIED: BG Color -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-100">
         <div class="bg-white w-full max-w-sm p-8 rounded-lg shadow-xl">
             <!-- MODIFIED: Color -->
             <h3 class="text-2xl font-semibold mb-6 text-center text-primary">Welcome to Bug Board</h3>
@@ -332,12 +325,10 @@
                 <div>
                     <!-- MODIFIED: "EIN" to "Name" -->
                     <label for="name-input" class="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
-                    <!-- MODIFIED: Color -->
-                    <input type="text" id="name-input" placeholder="e.g., Jane Doe" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
+                    <input type="text" id="name-input" placeholder="e.g., Calum Barnes" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
                 </div>
                 <div>
                     <label for="tl-code-input" class="block text-sm font-medium text-slate-700 mb-2">Unique Code (if you are a TL)</label>
-                    <!-- MODIFIED: Color -->
                     <input type="password" id="tl-code-input" placeholder="Optional TL Code" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary">
                 </div>
                 
@@ -358,7 +349,6 @@
         import { 
             getAuth, 
             signInAnonymously, 
-            // signInWithCustomToken, // Removed for GitHub version
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
@@ -389,8 +379,6 @@
         const ticketsCollectionPath = `tickets`;
         // ADDED: New collection path for TL codes
         const tlCodesCollectionPath = `tl_codes`;
-        // REMOVED: The flat activity log
-        // const activityLogCollectionPath = `activity_log`;
         // ADDED: New collection path for users
         const usersCollectionPath = `users`;
         
@@ -409,10 +397,12 @@
 
         // --- DOM Elements ---
         const newTicketForm = document.getElementById('new-ticket-form');
+        
         const newTicketsList = document.getElementById('new-tickets-list');
         // UPDATED: Get the two new lists for Known Issues
         const persistentIssuesList = document.getElementById('persistent-issues-list');
         const newIssuesList = document.getElementById('new-issues-list');
+        
         const completedTicketsList = document.getElementById('completed-tickets-list');
         
         // ADDED: Download Buttons
@@ -455,14 +445,14 @@
         // NEW Login Modal DOM Elements
         const loginModal = document.getElementById('login-modal');
         const loginForm = document.getElementById('login-form');
-        const nameInput = document.getElementById('name-input'); // MODIFIED: nameInput
+        const nameInput = document.getElementById('name-input'); // MODIFIED
         const tlCodeInput = document.getElementById('tl-code-input');
         const loginErrorMsg = document.getElementById('login-error-msg');
         const appLoader = document.getElementById('app-loader'); // ADDED
         const loginButton = document.getElementById('login-btn'); // ADDED
         
         // Header Display
-        const userNameDisplay = document.getElementById('user-name-display'); // MODIFIED: userNameDisplay
+        const userNameDisplay = document.getElementById('user-name-display'); // MODIFIED
         
         // Form inputs to auto-fill
         const ticketNameInput = document.getElementById('ticket-name'); // MODIFIED: Submit form Name input
@@ -474,7 +464,7 @@
          */
         function formatTimeAgo(timestamp) {
             if (!timestamp) return '...';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); // Handle JS Dates too
+            const date = timestamp.toDate ? timestamp.toDate() : timestamp;
             const seconds = Math.floor((new Date() - date) / 1000);
             
             let interval = seconds / 31536000;
@@ -605,9 +595,9 @@
             navLinks.forEach(link => {
                 if (link.dataset.page === currentPage) {
                     // MODIFIED: Color
-                    link.classList.add('bg-slate-100', 'text-primary');
+                    link.classList.add('bg-primary/10', 'text-primary');
                 } else {
-                    link.classList.remove('bg-slate-100', 'text-primary');
+                    link.classList.remove('bg-primary/10', 'text-primary');
                 }
             });
         }
@@ -639,20 +629,20 @@
             if (userRole === 'guide') {
                 submitNavBtn.style.display = 'none'; // Hide "Submit Issue" link
                 // ADDED: Hide download buttons for guides
-                downloadCompletedBtn.style.display = 'none';
-                downloadMetricsBtn.style.display = 'none';
+                if (downloadCompletedBtn) downloadCompletedBtn.style.display = 'none';
+                if (downloadMetricsBtn) downloadMetricsBtn.style.display = 'none';
             } else if (userRole === 'tl') {
                 submitNavBtn.style.display = 'block'; // Ensure "Submit Issue" link is visible
                 // ADDED: Show download buttons for TLs
-                downloadCompletedBtn.style.display = 'block';
-                downloadMetricsBtn.style.display = 'block';
+                if (downloadCompletedBtn) downloadCompletedBtn.style.display = 'block';
+                if (downloadMetricsBtn) downloadMetricsBtn.style.display = 'block';
             }
         }
 
         /**
          * NEW: Helper function to complete the login process
          */
-        async function loginSuccess(role, name) { // MODIFIED: ein to name
+        function loginSuccess(role, name) { // MODIFIED: ein to name
             userRole = role;
             userName = name; // MODIFIED
 
@@ -660,8 +650,6 @@
             localStorage.setItem('userRole', userRole);
             localStorage.setItem('userName', userName); // MODIFIED
             
-            // --- REMOVED: The old flat log activity ---
-
             // Set default page based on role
             if (userRole === 'tl') {
                 currentPage = 'submit';
@@ -749,8 +737,6 @@
             }
         }
 
-        // <!-- FIX: Removed the duplicate, non-async handleAppLogin function -->
-
         /**
          * Logs the user out by clearing their role and reloading
          */
@@ -774,15 +760,14 @@
                 // User is already "logged in", set globals and start the app
                 userRole = savedRole;
                 userName = savedName; // MODIFIED
-                loginModal.classList.add('hidden');
-
+                
                 // Set default page based on role (for page load)
                 if (userRole === 'tl') {
                     currentPage = 'submit';
                 } else {
                     currentPage = 'known';
                 }
-
+                
                 loginModal.classList.add('hidden');
                 appLoader.classList.remove('hidden'); // ADDED: Show loader
                 initializeAppLogic();
@@ -863,7 +848,8 @@
                     // ADDED: lowercase name for querying
                     name_lowercase: userName.trim().toLowerCase() 
                 }, { merge: true });
-            } catch (error) { // <-- FIX #1: Corrected catch block syntax
+            } catch (error)
+                {
                 console.error("Failed to create/update user document: ", error);
             }
             // --- End User Document ---
@@ -871,49 +857,46 @@
             ticketsCollectionRef = collection(db, ticketsCollectionPath);
             onSnapshot(query(ticketsCollectionRef), renderApp);
 
-                    // Seed permanent issues on load
-                    await seedPermanentIssues();
+            // Seed permanent issues on load
+            await seedPermanentIssues();
 
-                    // 5. Attach all event handlers
-                    newTicketForm.addEventListener('submit', handleNewTicketSubmit);
-                    
-                    // Listen for clicks on the parent lists
-                    newTicketsList.addEventListener('click', handleListClicks);
-                    // UPDATED: Listen on the two new lists
-                    persistentIssuesList.addEventListener('click', handleListClicks);
-                    newIssuesList.addEventListener('click', handleListClicks);
-                    completedTicketsList.addEventListener('click', handleListClicks); 
+            // 5. Attach all event handlers
+            newTicketForm.addEventListener('submit', handleNewTicketSubmit);
+            
+            // Listen for clicks on the parent lists
+            newTicketsList.addEventListener('click', handleListClicks);
+            // MODIFIED: Attach to new 2-column lists
+            persistentIssuesList.addEventListener('click', handleListClicks);
+            newIssuesList.addEventListener('click', handleListClicks);
+            
+            completedTicketsList.addEventListener('click', handleListClicks); 
 
-                    // Modal listeners
-                    modalCancelBtn.addEventListener('click', hideModal);
-                    affectedForm.addEventListener('submit', handleAffectedSubmit);
+            // Modal listeners
+            modalCancelBtn.addEventListener('click', hideModal);
+            affectedForm.addEventListener('submit', handleAffectedSubmit);
 
-                    // NEW Complete Modal listeners
-                    completeModalCancelBtn.addEventListener('click', hideCompleteModal);
-                    completeForm.addEventListener('submit', handleCompleteSubmit);
+            // NEW Complete Modal listeners
+            completeModalCancelBtn.addEventListener('click', hideCompleteModal);
+            completeForm.addEventListener('submit', handleCompleteSubmit);
 
-                    // ADDED: Download button listeners
-                    downloadCompletedBtn.addEventListener('click', downloadCompletedReport);
-                    downloadMetricsBtn.addEventListener('click', downloadMetricsReport);
+            // ADDED: Download button listeners
+            downloadCompletedBtn.addEventListener('click', downloadCompletedReport);
+            downloadMetricsBtn.addEventListener('click', downloadMetricsReport);
 
-                    // New Nav Listeners
-                    hamburgerBtn.addEventListener('click', showSidebar);
-                    sidebarOverlay.addEventListener('click', hideSidebar);
-                    navLinks.forEach(link => {
-                        link.addEventListener('click', handleNavClick);
-                    });
-                    logoutBtn.addEventListener('click', handleLogout); // Attach sidebar logout listener
-                    headerLogoutBtn.addEventListener('click', handleLogout); // Attach header logout listener
+            // New Nav Listeners
+            hamburgerBtn.addEventListener('click', showSidebar);
+            sidebarOverlay.addEventListener('click', hideSidebar);
+            navLinks.forEach(link => {
+                link.addEventListener('click', handleNavClick);
+            });
+            logoutBtn.addEventListener('click', handleLogout); // Attach sidebar logout listener
+            headerLogoutBtn.addEventListener('click', handleLogout); // Attach header logout listener
 
-                    // 6. Initial Page Render
-                    renderPage();
-
-                    // ADDED: Hide loader AFTER first render
-                    appLoader.classList.add('hidden');
-
-            // --- FIX #2: REMOVED Orphaned 'else' block ---
-            // This 'else' block was a remnant from an old function structure
-            // and was causing the "Unexpected token 'else'" error.
+            // 6. Initial Page Render
+            renderPage();
+            
+            // ADDED: Hide loader AFTER first render
+            appLoader.classList.add('hidden');
         }
 
         // --- END NEW Role-Based Functions ---
@@ -961,7 +944,7 @@
                 return;
             }
 
-            let csvRows = ["Title,Description,Resolution,Completed At"];
+            let csvRows = ["Title,Description,Resolution,Submitted By,Approved By,Resolved By,Completed At"]; // MODIFIED: Added columns
             let completedTickets = [];
 
             globalSnapshot.forEach(doc => {
@@ -977,8 +960,11 @@
                 const title = escapeCSV(ticket.title);
                 const desc = escapeCSV(ticket.description);
                 const resolution = escapeCSV(ticket.fixDescription);
+                const submittedBy = escapeCSV(ticket.name); // ADDED
+                const approvedBy = escapeCSV(ticket.approverName); // ADDED
+                const resolvedBy = escapeCSV(ticket.resolverName); // ADDED
                 const completedAt = escapeCSV(ticket.completedAt ? ticket.completedAt.toDate().toLocaleString() : 'N/A');
-                csvRows.push(`${title},${desc},${resolution},${completedAt}`);
+                csvRows.push(`${title},${desc},${resolution},${submittedBy},${approvedBy},${resolvedBy},${completedAt}`); // MODIFIED
             });
 
             downloadCSV(csvRows.join("\n"), "completed_issues_report.csv");
@@ -993,7 +979,7 @@
                 return;
             }
 
-            let csvRows = ["Title,Daily Affected Count,Type"];
+            let csvRows = ["Title,Daily Affected Count,Type,Submitted By,Approved By"]; // MODIFIED: Added columns
             let knownTickets = [];
             const startOfToday = getStartOfDay();
 
@@ -1016,7 +1002,9 @@
                 const title = escapeCSV(ticket.title);
                 const count = ticket.dailyAffectedCount;
                 const type = escapeCSV(ticket.isPermanent ? "Permanent" : "New & Important");
-                csvRows.push(`${title},${count},${type}`);
+                const submittedBy = escapeCSV(ticket.name); // ADDED
+                const approvedBy = escapeCSV(ticket.approverName); // ADDED
+                csvRows.push(`${title},${count},${type},${submittedBy},${approvedBy}`); // MODIFIED
             });
 
             downloadCSV(csvRows.join("\n"), "daily_metrics_report.csv");
@@ -1049,8 +1037,6 @@
                     console.log(`Seeding ${missingTitles.length} missing permanent issues...`);
                     // Use a loop to add each missing doc
                     for (const title of missingTitles) {
-                        // --- FIX 1: START ---
-                        // The addDoc call was broken by a copy-paste error.
                         await addDoc(ticketsCollectionRef, {
                             title: title,
                             description: "This is an ongoing, persistent operational issue.",
@@ -1058,9 +1044,11 @@
                             isPermanent: true, // Special flag
                             createdAt: serverTimestamp(),
                             acknowledgedAt: serverTimestamp(),
-                            affectedUsers: [] 
+                            affectedUsers: [],
+                            // ADDED: Set a generic submitter name for permanent issues
+                            name: "Bug Board System",
+                            approverName: "Bug Board System"
                         });
-                        // --- FIX 1: END ---
                     }
                 } else {
                     console.log('All permanent issues already exist.');
@@ -1070,10 +1058,9 @@
             }
         }
 
-        // <!-- FIX: Changed HTML comment to JS comment -->
-        // ADDED: renderTicketCard function definition
         /**
          * Renders a single ticket card into the specified list.
+         * This is for the "Known Issues" page (both columns)
          */
         function renderTicketCard(listElement, ticket) {
             const affectedUsers = ticket.affectedUsers || [];
@@ -1089,7 +1076,15 @@
             
             // 2. Use the "daily" count for all UI
             const numAffected = dailyAffectedUsers.length;
-            
+            totalAffectedCount += numAffected; // Add to global metric
+
+            // 3. Add to unique set for "daily" unique users
+            dailyAffectedUsers.forEach(user => {
+                if (user.name) { // MODIFIED: ein to name
+                    uniqueAffectedUsers.add(user.name); // MODIFIED
+                }
+            });
+
             // 4. Check if this user is in the "daily" list
             const userIsAffected = dailyAffectedUsers.some(user => user.name === userName); // MODIFIED
             // --- END OF DAILY RESET LOGIC ---
@@ -1098,33 +1093,47 @@
             let timeOpenHtml = '';
             if (ticket.isPermanent) {
                 // MODIFIED: Color
-                timeOpenHtml = '<span class="text-slate-500 font-medium text-primary">Permanent Issue</span>';
+                timeOpenHtml = 'Permanent Issue';
             } else {
-                timeOpenHtml = `<span class="text-slate-500">Open for ${formatTimeAgo(ticket.acknowledgedAt || ticket.createdAt)}</span>`;
+                timeOpenHtml = `Open for ${formatTimeAgo(ticket.acknowledgedAt || ticket.createdAt)}`;
             }
             // --- END: Time Open Logic ---
+
+            // ADDED: Logic to show submitter and approver names
+            const submitterHtml = ticket.name ? `<p class="text-xs text-slate-500">Submitted by: <strong class="text-slate-700">${ticket.name}</strong></p>` : '';
+            const approverHtml = ticket.approverName ? `<p class="text-xs text-slate-500">Approved by: <strong class="text-slate-700">${ticket.approverName}</strong></p>` : '';
+
 
             // Conditionally hide "Complete" button for permanent issues
             const completeButtonHtml = ticket.isPermanent
                 ? '' // Don't render the button if the issue is permanent
                 // MODIFIED: Color
                 : `<button data-id="${ticket.id}" class="complete-btn w-full text-sm font-medium py-1 px-3 rounded-lg transition bg-primary text-white hover:bg-primary/90 mt-2">
-                        Mark as Complete (Admin)
+                        Mark as Complete (TL)
                     </button>`;
 
             const el = document.createElement('div');
             el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
+            
+            // MODIFIED: Card Layout
             el.innerHTML = `
                 <h3 class="font-semibold text-lg">${ticket.title}</h3>
                 <p class="text-sm text-slate-600 mb-3">${ticket.description}</p>
-                <div class="flex justify-between text-sm mb-3">
+                
+                <!-- Audit trail -->
+                <div class="text-xs text-slate-500 mb-3 space-y-1 p-2 bg-slate-50 rounded-md">
+                    ${submitterHtml}
+                    ${approverHtml}
+                </div>
+
+                <div class="flex justify-between items-center text-sm mb-3">
                     <!-- MODIFIED: Color -->
-                    <span class="font-medium text-slate-700">Affected: <strong class="text-secondary">${numAffected}</strong></span>
-                    ${timeOpenHtml} <!-- MODIFIED -->
+                    <span class="font-medium text-slate-700">Daily Affected: <strong class="text-secondary/90">${numAffected}</strong></span>
+                    <span class="font-medium ${ticket.isPermanent ? 'text-primary' : 'text-slate-500'}">${timeOpenHtml}</span>
                 </div>
                 <!-- MODIFIED: Color -->
                 <button data-id="${ticket.id}" class="affected-btn w-full text-sm font-medium py-1 px-3 rounded-lg transition ${userIsAffected ? 'bg-slate-300 text-slate-600 cursor-not-allowed' : 'bg-secondary text-white hover:bg-secondary/90'}" ${userIsAffected ? 'disabled' : ''}>
-                    ${userIsAffected ? 'You reported this' : "I've been affected by this"}
+                    ${userIsAffected ? 'You reported this today' : "I've been affected by this"}
                 </button>
                 ${completeButtonHtml}
             `;
@@ -1141,25 +1150,20 @@
 
             // Clear lists
             newTicketsList.innerHTML = '';
-            // UPDATED: Clear the two new lists
+            // MODIFIED: Clear new 2-column lists
             persistentIssuesList.innerHTML = '';
             newIssuesList.innerHTML = '';
+            
             completedTicketsList.innerHTML = '';
 
             // Metric counters
-            let totalAffectedCount = 0;
-            let uniqueAffectedNames = new Set(); // MODIFIED: For unique user counting
+            totalAffectedCount = 0;
+            uniqueAffectedUsers = new Set(); // MODIFIED: For unique user counting
             
             // Arrays for sorting
             let pendingTickets = [];
-            // UPDATED: Use two arrays for known tickets
-            let persistentTickets = [];
-            let newAndImportantTickets = [];
+            let knownTickets = [];
             let completedTicketsArray = []; 
-            let allKnownTickets = []; // For metrics
-            
-            // Get start of today for metrics
-            const startOfToday = getStartOfDay();
 
             if (querySnapshot.empty) {
                 // Handled below by checking array lengths
@@ -1173,33 +1177,7 @@
                     pendingTickets.push({ id: ticketId, ...ticket });
                 } 
                 else if (ticket.status === 'KNOWN') {
-                    const ticketWithId = { id: ticketId, ...ticket };
-                    
-                    // --- Calculate Daily Metrics ---
-                    const affectedUsers = ticket.affectedUsers || [];
-                    const dailyAffectedUsers = affectedUsers.filter(user => {
-                        return user.timestamp && user.timestamp.toDate() > startOfToday;
-                    });
-                    
-                    // Add daily counts to the ticket object for sorting
-                    ticketWithId.dailyAffectedCount = dailyAffectedUsers.length;
-                    
-                    // Add to global daily metrics
-                    totalAffectedCount += dailyAffectedUsers.length;
-                    dailyAffectedUsers.forEach(user => {
-                        if (user.name) { // MODIFIED
-                            uniqueAffectedNames.add(user.name); // MODIFIED
-                        }
-                    });
-                    // --- End Daily Metrics ---
-
-                    // UPDATED: Sort into persistent or new
-                    if (ticket.isPermanent) {
-                        persistentTickets.push(ticketWithId);
-                    } else {
-                        newAndImportantTickets.push(ticketWithId);
-                    }
-                    allKnownTickets.push(ticketWithId); // Add to metrics list
+                    knownTickets.push({ id: ticketId, ...ticket });
                 }
                 else if (ticket.status === 'COMPLETE') {
                     completedTicketsArray.push({ id: ticketId, ...ticket }); 
@@ -1217,8 +1195,7 @@
                     el.innerHTML = `
                         <h3 class="font-semibold text-lg">${ticket.title}</h3>
                         <p class="text-sm text-slate-600 mb-2">${ticket.description}</p>
-                        <!-- MODIFIED: "EIN" to "Name" -->
-                        <p class="text-xs text-slate-400 mb-1">Submitted by Name: ${ticket.name} (Code: ${ticket.uniqueCode})</p>
+                        <!-- MODIFIED: Name is now shown on the "Known" card -->
                         <p class="text-xs text-slate-400 mb-3">Submitted ${formatTimeAgo(ticket.createdAt)}</p>
                         <button data-id="${ticket.id}" class="approve-btn w-full bg-green-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-green-600 transition">
                             Approve (Move to Known)
@@ -1232,9 +1209,21 @@
 
             // --- RENDER KNOWN TICKETS (SORTED) ---
             
-            // Sort by most *daily* affected users first
-            persistentTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
-            newAndImportantTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
+            // MODIFIED: Separate into two lists
+            let persistentTickets = [];
+            let newAndImportantTickets = [];
+
+            knownTickets.forEach(ticket => {
+                if (ticket.isPermanent) {
+                    persistentTickets.push(ticket);
+                } else {
+                    newAndImportantTickets.push(ticket);
+                }
+            });
+
+            // Sort by most affected users first
+            persistentTickets.sort((a, b) => (b.affectedUsers?.length || 0) - (a.affectedUsers?.length || 0));
+            newAndImportantTickets.sort((a, b) => (b.affectedUsers?.length || 0) - (a.affectedUsers?.length || 0));
 
             // Render Persistent Issues
             if (persistentTickets.length > 0) {
@@ -1251,9 +1240,9 @@
                     renderTicketCard(newIssuesList, ticket);
                 });
             } else {
-                newIssuesList.innerHTML = '<p class="text-slate-400">No new known issues...</p>';
+                newIssuesList.innerHTML = '<p class="text-slate-400">No new issues...</p>';
             }
-
+            
             // --- RENDER COMPLETED TICKETS ---
             if (completedTicketsArray.length > 0) {
                  // Sort completed tickets by most recent first
@@ -1262,7 +1251,12 @@
                 completedTicketsArray.forEach(ticket => { 
                     // ADDED: Check for fix description and create HTML
                     const fixDescHtml = ticket.fixDescription
-                        ? `<p class="text-sm text-slate-600 mt-2 p-2 bg-green-100/60 rounded-lg"><strong>Resolution:</strong> ${ticket.fixDescription}</p>`
+                        ? `<p class="text-sm text-slate-600 mt-2 p-2 bg-green-50 rounded-lg"><strong>Resolution:</strong> ${ticket.fixDescription}</p>`
+                        : '';
+                    
+                    // ADDED: Resolver name
+                    const resolverHtml = ticket.resolverName
+                        ? `<p class="text-xs text-slate-500 mt-2">Resolved by: <strong class="text-slate-700">${ticket.resolverName}</strong></p>`
                         : '';
 
                     const el = document.createElement('div');
@@ -1272,6 +1266,7 @@
                         <p class="text-sm text-slate-500 mb-2">${ticket.description}</p>
                         <p class="text-xs text-slate-400">Completed ${formatTimeAgo(ticket.completedAt)}</p>
                         ${fixDescHtml} <!-- ADDED -->
+                        ${resolverHtml} <!-- ADDED -->
                     `;
                     completedTicketsList.appendChild(el);
                 });
@@ -1280,19 +1275,24 @@
             }
 
             // --- UPDATE METRICS ---
-            // Metrics are now calculated *daily* in the loop above
             metricTotalAffected.textContent = totalAffectedCount;
-            metricUniqueAffected.textContent = uniqueAffectedNames.size; // MODIFIED: Set unique count
+            metricUniqueAffected.textContent = uniqueAffectedUsers.size; // MODIFIED: Set unique count
             
             // --- Update Top 5 List ---
             top5List.innerHTML = ''; // Clear old list
-            // Sort all known tickets by *daily* count for Top 5
-            allKnownTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
-            const top5Issues = allKnownTickets.slice(0, 5);
+
+            // Sort all known tickets by daily count for metrics
+            knownTickets.sort((a, b) => {
+                const countA = a.dailyAffectedUsers?.length || 0;
+                const countB = b.dailyAffectedUsers?.length || 0;
+                return countB - countA;
+            });
+
+            const top5Issues = knownTickets.slice(0, 5);
             
             if (top5Issues.length > 0) {
                 top5Issues.forEach((ticket, index) => {
-                    const numAffected = ticket.dailyAffectedCount || 0; // Use daily count
+                    const numAffected = ticket.dailyAffectedUsers?.length || 0;
                     const el = document.createElement('div');
                     el.className = 'flex justify-between items-center p-3 bg-slate-50 rounded-lg';
                     el.innerHTML = `
@@ -1301,7 +1301,7 @@
                             <span class="font-medium ml-2">${ticket.title}</span>
                         </div>
                         <!-- MODIFIED: Color -->
-                        <span class="font-bold text-secondary text-lg">${numAffected}</span>
+                        <span class="font-bold text-secondary/90 text-lg">${numAffected}</span>
                     `;
                     top5List.appendChild(el);
                 });
@@ -1316,18 +1316,20 @@
                 metricsChart.destroy();
             }
 
-            // 2. Prepare data (Top 5 + "Other" based on *daily* count)
+            // 2. Prepare data (Top 5 + "Other")
             const chartLabels = [];
             const chartData = [];
             let otherCount = 0;
 
-            allKnownTickets.forEach((ticket, index) => {
-                const count = ticket.dailyAffectedCount || 0; // Use daily count
-                if (index < 5) {
-                    chartLabels.push(ticket.title);
-                    chartData.push(count);
-                } else {
-                    otherCount += count;
+            knownTickets.forEach((ticket, index) => {
+                const count = ticket.dailyAffectedUsers?.length || 0;
+                if (count > 0) { // Only add to chart if it has votes
+                    if (index < 5) {
+                        chartLabels.push(ticket.title);
+                        chartData.push(count);
+                    } else {
+                        otherCount += count;
+                    }
                 }
             });
 
@@ -1346,22 +1348,21 @@
                         datasets: [{
                             label: '# of Votes',
                             data: chartData,
-                            // MODIFIED: Chart Colors
                             backgroundColor: [
                                 'rgba(100, 0, 170, 0.7)',  // primary
                                 'rgba(0, 155, 164, 0.7)',  // secondary
-                                'rgba(249, 115, 22, 0.7)', // orange-500
-                                'rgba(34, 197, 94, 0.7)',  // green-500
-                                'rgba(139, 70, 194, 0.7)', // lighter purple
-                                'rgba(107, 114, 128, 0.7)' // gray-500
+                                'rgba(100, 0, 170, 0.5)',  // primary light
+                                'rgba(0, 155, 164, 0.5)',  // secondary light
+                                'rgba(100, 0, 170, 0.3)',  // primary lightest
+                                'rgba(0, 155, 164, 0.3)'   // secondary lightest
                             ],
                             borderColor: [
                                 'rgba(100, 0, 170, 1)',
                                 'rgba(0, 155, 164, 1)',
-                                'rgba(249, 115, 22, 1)',
-                                'rgba(34, 197, 94, 1)',
-                                'rgba(139, 70, 194, 1)',
-                                'rgba(107, 114, 128, 1)'
+                                'rgba(100, 0, 170, 1)',
+                                'rgba(0, 155, 164, 1)',
+                                'rgba(100, 0, 170, 1)',
+                                'rgba(0, 155, 164, 1)'
                             ],
                             borderWidth: 1
                         }]
@@ -1399,31 +1400,35 @@
 
         /**
          * Handle New Ticket Submission
+         * MODIFIED: Removed all validation logic. Assumes user is a valid TL.
          */
         async function handleNewTicketSubmit(e) {
             e.preventDefault();
             const title = document.getElementById('ticket-title').value;
             const description = document.getElementById('ticket-desc').value;
             const name = ticketNameInput.value; // MODIFIED: Get auto-filled Name
-            const uniqueCode = document.getElementById('ticket-code').value;
 
-            if (!title || !description || !userId || !name || !uniqueCode) return; // MODIFIED
+            // Simplified check
+            if (!title || !description || !userId || !name) {
+                console.warn("Submit issue form incomplete.");
+                return;
+            }
 
             try {
+                // Submit ticket - no validation needed
                 await addDoc(ticketsCollectionRef, {
                     title: title,
                     description: description,
                     name: name, // MODIFIED: Save the submitter's Name
-                    uniqueCode: uniqueCode,
+                    // REMOVED: uniqueCode field
                     status: 'PENDING', // Initial status
                     createdAt: serverTimestamp(),
                     submitterId: userId, // Firebase auth ID
                     affectedUsers: [] 
                 });
 
-                // --- MODIFIED: Log activity to the USER'S subcollection ---
+                // Log the activity
                 try {
-                    // Create a ref to the user's specific activity_log
                     const userActivityLogRef = collection(db, usersCollectionPath, userId, "activity_log");
                     await addDoc(userActivityLogRef, {
                         timestamp: serverTimestamp(),
@@ -1433,16 +1438,15 @@
                 } catch (error) {
                     console.error("Failed to log submit activity: ", error);
                 }
-                // --- End Log ---
-
-                newTicketForm.reset();
-                // Re-fill Name after reset
-                ticketNameInput.value = userName; // MODIFIED
                 
-                // Switch to pending page after submission
+                // Reset form and navigate
+                newTicketForm.reset();
+                ticketNameInput.value = userName; // MODIFIED
                 currentPage = 'pending';
                 renderPage();
+
             } catch (error) {
+                // This will now only catch Firestore submission errors
                 console.error("Error adding document: ", error);
             }
         }
@@ -1457,7 +1461,8 @@
                 const ticketRef = doc(db, ticketsCollectionPath, ticketId);
                 updateDoc(ticketRef, {
                     status: 'KNOWN',
-                    acknowledgedAt: serverTimestamp()
+                    acknowledgedAt: serverTimestamp(),
+                    approverName: userName // ADDED: Log who approved it
                 }).catch(error => console.error("Error updating ticket: ", error));
             }
 
@@ -1510,14 +1515,12 @@
                     const startOfToday = getStartOfDay();
                     const isAlreadyAffected = affectedUsers.some(user => {
                         return user.name === name && // MODIFIED
-                            user.timestamp && 
-                            user.timestamp.toDate() > startOfToday;
+                               user.timestamp && 
+                               user.timestamp.toDate() > startOfToday;
                     });
 
-                    // --- FIX 2: START ---
-                    // This logic was broken by a copy-paste error.
                     if (isAlreadyAffected) {
-                        errorMsg.textContent = 'You have already reported this issue today.'; // MODIFIED
+                        errorMsg.textContent = 'You have already reported this issue today.';
                         errorMsg.classList.remove('hidden');
                     } else {
                         // Not already affected, add the new entry
@@ -1542,7 +1545,11 @@
 
                         hideModal();
                     }
-                    // --- FIX 2: END ---
+                } else {
+                    // This else block was missing, it's good practice to have it.
+                    console.error("Could not find ticket to update.");
+                    errorMsg.textContent = 'Error: Could not find this ticket.';
+                    errorMsg.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error("Error reporting affected issue: ", error);
@@ -1575,7 +1582,8 @@
                 await updateDoc(ticketRef, {
                     status: 'COMPLETE',
                     completedAt: serverTimestamp(),
-                    fixDescription: fixDescription // ADDED
+                    fixDescription: fixDescription, // ADDED
+                    resolverName: userName // ADDED: Log who resolved it
                 });
                 hideCompleteModal();
             } catch (error) {
