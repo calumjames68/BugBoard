@@ -156,7 +156,7 @@
                 <!-- Page 2: New Issues (Admin View) -->
                 <div id="page-pending" class="page-content hidden">
                     <section class="bg-white p-6 rounded-lg shadow-md">
-                        <p class="text-sm text-slate-500 mb-4">Approve pending issues to make them "Known".</p>
+                        <p class="text-sm text-slate-500 mb-4">Approve or reject pending issues. New issues are at the top. Rejected issues expire after 24 hours.</p>
                         <div id="new-tickets-list" class="space-y-4">
                             <!-- New tickets will be injected here by JS -->
                             <p class="text-slate-400">No new issues...</p>
@@ -678,6 +678,13 @@
             const now = new Date();
             now.setHours(0, 0, 0, 0);
             return now;
+        }
+
+        /**
+         * ADDED: Gets a Date object for 24 hours ago.
+         */
+        function get24HoursAgo() {
+            return new Date(Date.now() - 24 * 60 * 60 * 1000);
         }
 
         // --- NEW NAVIGATION FUNCTIONS ---
@@ -1425,6 +1432,49 @@
         }
 
         /**
+         * ADDED: Renders a card for the "Pending" page (with reject/reopen logic)
+         */
+        function renderPendingTicketCard(ticket) {
+            let titleClass = "font-semibold text-lg";
+            let descClass = "text-sm text-slate-600 mb-2";
+            let buttonsHtml = "";
+            let timeText = `Submitted ${formatTimeAgo(ticket.createdAt)} by <strong class="text-slate-600">${ticket.name}</strong>`;
+
+            if (ticket.status === 'REJECTED') {
+                titleClass += " line-through text-slate-400";
+                descClass += " line-through text-slate-400";
+                timeText = `Rejected ${formatTimeAgo(ticket.rejectedAt)} by <strong class="text-slate-600">${ticket.rejecterName || 'TL'}</strong>`;
+                buttonsHtml = `
+                    <button data-id="${ticket.id}" class="reopen-btn w-full bg-blue-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-blue-600 transition">
+                        Reopen?
+                    </button>
+                `;
+            } else {
+                // Standard PENDING
+                buttonsHtml = `
+                    <div class="grid grid-cols-2 gap-2">
+                        <button data-id="${ticket.id}" class="reject-btn w-full bg-red-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-red-600 transition">
+                            Reject
+                        </button>
+                        <button data-id="${ticket.id}" class="approve-btn w-full bg-green-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-green-600 transition">
+                            Approve
+                        </button>
+                    </div>
+                `;
+            }
+
+            const el = document.createElement('div');
+            el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
+            el.innerHTML = `
+                <h3 class="${titleClass}">${ticket.title}</h3>
+                <p class="${descClass}">${ticket.description}</p>
+                <p class="text-xs text-slate-400 mb-3">${timeText}</p>
+                ${buttonsHtml}
+            `;
+            newTicketsList.appendChild(el);
+        }
+
+        /**
          * The main render function. Processes the snapshot data and updates the UI.
          */
         function renderApp(querySnapshot) {
@@ -1445,7 +1495,7 @@
             uniqueAffectedUsers = new Set(); // MODIFIED: Reset global counter
             
             // Arrays for sorting
-            let pendingTickets = [];
+            let allPendingTickets = []; // MODIFIED: For all pending/rejected
             let knownTickets = [];
             let completedTicketsArray = []; 
 
@@ -1457,8 +1507,8 @@
                 const ticket = doc.data();
                 const ticketId = doc.id;
                 
-                if (ticket.status === 'PENDING') {
-                    pendingTickets.push({ id: ticketId, ...ticket });
+                if (ticket.status === 'PENDING' || ticket.status === 'REJECTED') { // MODIFIED
+                    allPendingTickets.push({ id: ticketId, ...ticket });
                 } 
                 else if (ticket.status === 'KNOWN') {
                     knownTickets.push({ id: ticketId, ...ticket });
@@ -1469,24 +1519,35 @@
             });
 
             // --- RENDER PENDING (NEW) TICKETS ---
-            if (pendingTickets.length > 0) {
-                // Sort pending tickets by newest first
-                pendingTickets.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+            // MODIFIED: To handle sorting and expiration
+            if (allPendingTickets.length > 0) {
+                const oneDayAgo = get24HoursAgo();
+                let newPending = [];
+                let rejected = [];
 
-                pendingTickets.forEach(ticket => {
-                    const el = document.createElement('div');
-                    el.className = 'p-4 border border-slate-200 rounded-lg shadow-sm';
-                    el.innerHTML = `
-                        <h3 class="font-semibold text-lg">${ticket.title}</h3>
-                        <p class="text-sm text-slate-600 mb-2">${ticket.description}</p>
-                        <!-- MODIFIED: Name is now shown on the "Known" card -->
-                        <p class="text-xs text-slate-400 mb-3">Submitted ${formatTimeAgo(ticket.createdAt)} by <strong class="text-slate-600">${ticket.name}</strong></p>
-                        <button data-id="${ticket.id}" class="approve-btn w-full bg-green-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-green-600 transition">
-                            Approve (Move to Known)
-                        </button>
-                    `;
-                    newTicketsList.appendChild(el);
+                allPendingTickets.forEach(ticket => {
+                    if (ticket.status === 'PENDING') {
+                        newPending.push(ticket);
+                    } else if (ticket.status === 'REJECTED') {
+                        // Only include rejected tickets from the last 24 hours
+                        if (ticket.rejectedAt && ticket.rejectedAt.toDate() > oneDayAgo) {
+                            rejected.push(ticket);
+                        }
+                    }
                 });
+
+                // Sort new pending tickets by newest first
+                newPending.sort((a, b) => (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0));
+                // Sort rejected tickets by most recently rejected
+                rejected.sort((a, b) => (b.rejectedAt?.toDate() || 0) - (a.rejectedAt?.toDate() || 0));
+
+                if (newPending.length === 0 && rejected.length === 0) {
+                    newTicketsList.innerHTML = '<p class="text-slate-400">No pending issues...</p>';
+                } else {
+                    // Render new tickets first, then rejected
+                    newPending.forEach(ticket => renderPendingTicketCard(ticket));
+                    rejected.forEach(ticket => renderPendingTicketCard(ticket));
+                }
             } else {
                 newTicketsList.innerHTML = '<p class="text-slate-400">No pending issues...</p>';
             }
@@ -1756,6 +1817,29 @@
                     acknowledgedAt: serverTimestamp(),
                     approverName: userName // ADDED: Log who approved it
                 }).catch(error => console.error("Error updating ticket: ", error));
+            }
+
+            // ADDED: Reject Button Click
+            if (e.target.classList.contains('reject-btn')) {
+                const ticketId = e.target.dataset.id;
+                const ticketRef = doc(db, ticketsCollectionPath, ticketId);
+                updateDoc(ticketRef, {
+                    status: 'REJECTED',
+                    rejectedAt: serverTimestamp(),
+                    rejecterName: userName
+                }).catch(error => console.error("Error rejecting ticket: ", error));
+            }
+
+            // ADDED: Reopen Button Click
+            if (e.target.classList.contains('reopen-btn')) {
+                const ticketId = e.target.dataset.id;
+                const ticketRef = doc(db, ticketsCollectionPath, ticketId);
+                updateDoc(ticketRef, {
+                    status: 'PENDING',
+                    reopenedAt: serverTimestamp(),
+                    rejectedAt: null, // Clear the rejected timestamp
+                    rejecterName: null
+                }).catch(error => console.error("Error reopening ticket: ", error));
             }
 
             // "I've been affected" Button Click
