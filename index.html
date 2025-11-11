@@ -338,7 +338,7 @@
                 <form id="guide-login-form" class="space-y-4">
                     <div>
                         <label for="name-input" class="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
-                        <input type="text" id="name-input" placeholder="e.g., Name MCname" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
+                        <input type="text" id="name-input" placeholder="e.g., Calum Barnes" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
                     </div>
                     <div>
                         <label for="ein-input" class="block text-sm font-medium text-slate-700 mb-2">Your EIN</label>
@@ -373,7 +373,8 @@
         import { 
             getAuth, 
             signInAnonymously, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            signOut // --- ADDED THIS ---
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -469,6 +470,7 @@
         const pageContents = document.querySelectorAll('.page-content');
         const headerTitle = document.getElementById('header-title');
         const submitNavBtn = document.querySelector('.nav-link[data-page="submit"]');
+        const pendingNavBtn = document.querySelector('.nav-link[data-page="pending"]'); // ADDED
         const logoutBtn = document.getElementById('logout-btn');
         const headerLogoutBtn = document.getElementById('header-logout-btn'); // Header logout button
 
@@ -616,6 +618,10 @@
             if (userRole === 'guide' && currentPage === 'submit') {
                 currentPage = 'known'; // Guides can't see submit page
             }
+            // ADDED: Redirect for pending page
+            if (userRole === 'guide' && currentPage === 'pending') {
+                currentPage = 'known'; // Guides can't see pending page
+            }
             
             // Auto-fill submit form Name if on that page
             if (currentPage === 'submit') {
@@ -671,11 +677,13 @@
 
             if (userRole === 'guide') {
                 submitNavBtn.style.display = 'none'; // Hide "Submit Issue" link
+                if (pendingNavBtn) pendingNavBtn.style.display = 'none'; // ADDED: Hide "Pending" link
                 // ADDED: Hide download buttons for guides
                 if (downloadCompletedBtn) downloadCompletedBtn.style.display = 'none';
                 if (downloadMetricsBtn) downloadMetricsBtn.style.display = 'none';
             } else if (userRole === 'tl') {
                 submitNavBtn.style.display = 'block'; // Ensure "Submit Issue" link is visible
+                if (pendingNavBtn) pendingNavBtn.style.display = 'block'; // ADDED: Show "Pending" link
                 // ADDED: Show download buttons for TLs
                 if (downloadCompletedBtn) downloadCompletedBtn.style.display = 'block';
                 if (downloadMetricsBtn) downloadMetricsBtn.style.display = 'block';
@@ -833,13 +841,26 @@
 
         /**
          * Logs the user out by clearing their role and reloading
+         * MODIFIED: Now signs out of Firebase Auth as well
          */
-        function handleLogout() {
+        async function handleLogout() { // --- MADE ASYNC ---
             // Clear all user data
             localStorage.removeItem('userRole');
             localStorage.removeItem('userName');
-            localStorage.removeItem('userEIN'); // ADDED
-            location.reload();
+            localStorage.removeItem('userEIN');
+            
+            try {
+                // --- ADDED: Sign out of Firebase ---
+                // This destroys the anonymous user, forcing a new
+                // one to be created on reload. This is the fix.
+                await signOut(auth);
+                // --- END ---
+            } catch (error) {
+                console.error("Error signing out: ", error);
+            } finally {
+                // Reload the page to restart the login flow
+                location.reload();
+            }
         }
 
         /**
@@ -875,6 +896,7 @@
             }
         }
         
+        // --- ADDED: initializeFirebase function ---
         /**
          * NEW: Initializes the Firebase app, db, and auth objects.
          * This must be called before any other Firebase operations.
@@ -918,6 +940,8 @@
             auth = getAuth(app);
             setLogLevel('debug');
         }
+        // --- END: initializeFirebase function ---
+
 
         /**
          * Contains the main app logic that runs *after* a role is set
@@ -969,14 +993,21 @@
                 
                 await setDoc(userRef, dataToSet, { merge: true });
                 
-            } catch (error)
-                {
+            } catch (error) { // <-- FIXED: This was a malformed catch block
                 console.error("Failed to create/update user document: ", error);
             }
             // --- End User Document ---
             
             ticketsCollectionRef = collection(db, ticketsCollectionPath);
-            onSnapshot(query(ticketsCollectionRef), renderApp);
+            // MODIFIED: Added an error handler to onSnapshot
+            onSnapshot(query(ticketsCollectionRef), renderApp, (error) => {
+                // This will catch errors (like permission denied)
+                console.error("Error with onSnapshot listener: ", error);
+                // CRITICAL: Hide the loader even if the listener fails
+                // so the user isn't stuck.
+                appLoader.classList.add('hidden');
+                // You could show an error message on the page here
+            });
 
             // Seed permanent issues on load
             await seedPermanentIssues();
@@ -1722,7 +1753,7 @@
         // --- INITIALIZATION ---
         async function main() {
             // 1. NEW: Initialize Firebase FIRST
-            initializeFirebase();
+            initializeFirebase(); // FIX: Added this function call
 
             // 2. MODIFIED: Attach login listener *after* we have a userId
             
