@@ -385,6 +385,11 @@
         let globalSnapshot = null; // To store the latest data for metric re-calculation
         let currentPage = null; // To track the visible page. Will be set by login logic.
         let metricsChart = null; // To store the Chart.js instance
+        
+        // --- ADDED: Moved metric counters to global scope ---
+        let totalAffectedCount = 0;
+        let uniqueAffectedUsers = new Set();
+        // ---
 
         // Page titles for header
         const pageTitles = {
@@ -666,7 +671,7 @@
 
         /**
          * Handles the login logic (Guide button or TL form)
-         * MODIFIED: Now async and checks Firestore for TL code
+         * MODIFIED: To correctly handle re-logins and name uniqueness.
          */
         async function handleAppLogin(e) {
             e.preventDefault();
@@ -685,47 +690,57 @@
             loginErrorMsg.classList.add('hidden');
 
             try {
-                // --- ADDED: Uniqueness Check ---
-                // We check if the name (case-insensitive) is taken by ANOTHER user.
+                // --- MODIFIED: Uniqueness & Role Check ---
                 const name_lowercase = name.toLowerCase();
                 const usersQuery = query(collection(db, usersCollectionPath), where("name_lowercase", "==", name_lowercase));
                 const querySnapshot = await getDocs(usersQuery);
-                
-                let isNameTakenByOther = false;
+
+                let existingUserDoc = null;
                 if (!querySnapshot.empty) {
-                    querySnapshot.forEach(doc => {
-                        // If a doc with this name exists, check if it's NOT our
-                        // own doc. If it's not, the name is taken.
-                        if (doc.id !== userId) { 
-                            isNameTakenByOther = true;
+                    // This name is in the database. This is a RETURNING user.
+                    existingUserDoc = querySnapshot.docs[0];
+                    const storedRole = existingUserDoc.data().role;
+
+                    if (tlCode) {
+                        // User trying to re-login as TL
+                        if (storedRole !== 'tl') {
+                            throw new Error("This name is already registered as a Guide.");
                         }
-                    });
-                }
+                        // Role is correct, check TL code
+                        const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
+                        const tlCodeDoc = await getDoc(tlCodeRef);
+                        if (!tlCodeDoc.exists()) {
+                            throw new Error("Invalid TL Code. Please try again.");
+                        }
+                        // Code is valid. This is the correct TL.
+                        loginSuccess('tl', name);
 
-                if (isNameTakenByOther) {
-                    throw new Error(`The name "${name}" is already in use.`);
-                }
-                // --- End Uniqueness Check ---
-
-                // If name is not taken (or it's ours), proceed with TL code check
-                loginButton.textContent = 'Logging in...';
-
-                if (tlCode) {
-                    // A TL code was entered, check if it's valid
-                    const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
-                    const tlCodeDoc = await getDoc(tlCodeRef);
-
-                    if (tlCodeDoc.exists()) {
-                        // Valid TL code
-                        loginSuccess('tl', name); // MODIFIED
                     } else {
-                        // Invalid TL code
-                        throw new Error("Invalid TL Code. Please try again.");
+                        // User trying to re-login as Guide
+                        if (storedRole !== 'guide') {
+                            throw new Error("This name is registered as a TL. Please provide your TL Code.");
+                        }
+                        // Role is 'guide', let them in.
+                        loginSuccess('guide', name);
                     }
                 } else {
-                    // No TL code, log in as guide
-                    loginSuccess('guide', name); // MODIFIED
+                    // --- NEW USER ---
+                    // No doc exists with this name. This is a fresh registration.
+                    if (tlCode) {
+                        // Trying to register as NEW TL
+                        const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
+                        const tlCodeDoc = await getDoc(tlCodeRef);
+                        if (!tlCodeDoc.exists()) {
+                            throw new Error("Invalid TL Code. Please try again.");
+                        }
+                        // Code is valid, register new TL
+                        loginSuccess('tl', name);
+                    } else {
+                        // Register as NEW Guide
+                        loginSuccess('guide', name);
+                    }
                 }
+                
             } catch (error) {
                 // Handle any errors (invalid code, network issues)
                 console.error("Login Error: ", error);
@@ -835,19 +850,40 @@
 
             // --- MOVED onAuthStateChanged to main() ---
 
-            // --- ADDED: Create/Update User Document ---
-            // This is the new "hub" for this user.
-            // We use setDoc with merge:true to create the doc on first login
-            // and update the lastLogin timestamp on every subsequent login.
+            // --- MODIFIED: Create/Update User Document ---
+            // This logic now supports re-login (i.e. cache cleared)
+            // It tries to find the user by name. If found, it uses that doc.
+            // If not found, it creates a new doc with the current anon-userId.
             try {
-                const userRef = doc(db, usersCollectionPath, userId);
+                const name_lowercase = userName.trim().toLowerCase();
+                const usersQuery = query(collection(db, usersCollectionPath), where("name_lowercase", "==", name_lowercase));
+                const querySnapshot = await getDocs(usersQuery);
+
+                let userRef;
+                if (!querySnapshot.empty) {
+                    // User found. This is a re-login.
+                    // We *must* use their existing doc ID, NOT the new anon-ID.
+                    userRef = querySnapshot.docs[0].ref;
+                    
+                    // We also have to update our *global userId* to this existing ID,
+                    // so all future activity is logged to the correct user.
+                    userId = userRef.id;
+                } else {
+                    // User not found. This is a first-time registration.
+                    // Use the current anon-ID to create the new doc.
+                    // This 'userId' is the global one set by onAuthStateChanged.
+                    userRef = doc(db, usersCollectionPath, userId);
+                }
+
+                // Now, create or update the document with the correct userRef.
                 await setDoc(userRef, {
                     name: userName,
                     role: userRole,
                     lastLogin: serverTimestamp(),
                     // ADDED: lowercase name for querying
-                    name_lowercase: userName.trim().toLowerCase() 
+                    name_lowercase: name_lowercase 
                 }, { merge: true });
+                
             } catch (error)
                 {
                 console.error("Failed to create/update user document: ", error);
@@ -1157,8 +1193,8 @@
             completedTicketsList.innerHTML = '';
 
             // Metric counters
-            totalAffectedCount = 0;
-            uniqueAffectedUsers = new Set(); // MODIFIED: For unique user counting
+            totalAffectedCount = 0; // MODIFIED: Reset global counter
+            uniqueAffectedUsers = new Set(); // MODIFIED: Reset global counter
             
             // Arrays for sorting
             let pendingTickets = [];
@@ -1196,7 +1232,7 @@
                         <h3 class="font-semibold text-lg">${ticket.title}</h3>
                         <p class="text-sm text-slate-600 mb-2">${ticket.description}</p>
                         <!-- MODIFIED: Name is now shown on the "Known" card -->
-                        <p class="text-xs text-slate-400 mb-3">Submitted ${formatTimeAgo(ticket.createdAt)}</p>
+                        <p class="text-xs text-slate-400 mb-3">Submitted ${formatTimeAgo(ticket.createdAt)} by <strong class="text-slate-600">${ticket.name}</strong></p>
                         <button data-id="${ticket.id}" class="approve-btn w-full bg-green-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-green-600 transition">
                             Approve (Move to Known)
                         </button>
@@ -1282,17 +1318,22 @@
             top5List.innerHTML = ''; // Clear old list
 
             // Sort all known tickets by daily count for metrics
-            knownTickets.sort((a, b) => {
-                const countA = a.dailyAffectedUsers?.length || 0;
-                const countB = b.dailyAffectedUsers?.length || 0;
-                return countB - countA;
+            // We need to re-calculate daily affected count here for sorting
+            knownTickets.forEach(ticket => {
+                const startOfToday = getStartOfDay();
+                const dailyAffectedUsers = (ticket.affectedUsers || []).filter(user => {
+                    return user.timestamp && user.timestamp.toDate() > startOfToday;
+                });
+                ticket.dailyAffectedCount = dailyAffectedUsers.length;
             });
+
+            knownTickets.sort((a, b) => (b.dailyAffectedCount || 0) - (a.dailyAffectedCount || 0));
 
             const top5Issues = knownTickets.slice(0, 5);
             
             if (top5Issues.length > 0) {
                 top5Issues.forEach((ticket, index) => {
-                    const numAffected = ticket.dailyAffectedUsers?.length || 0;
+                    const numAffected = ticket.dailyAffectedCount || 0;
                     const el = document.createElement('div');
                     el.className = 'flex justify-between items-center p-3 bg-slate-50 rounded-lg';
                     el.innerHTML = `
@@ -1322,7 +1363,7 @@
             let otherCount = 0;
 
             knownTickets.forEach((ticket, index) => {
-                const count = ticket.dailyAffectedUsers?.length || 0;
+                const count = ticket.dailyAffectedCount || 0;
                 if (count > 0) { // Only add to chart if it has votes
                     if (index < 5) {
                         chartLabels.push(ticket.title);
@@ -1585,7 +1626,7 @@
                     fixDescription: fixDescription, // ADDED
                     resolverName: userName // ADDED: Log who resolved it
                 });
-                hideCompleteModal();
+                hideModal();
             } catch (error) {
                 console.error("Error completing ticket: ", error);
                 completeModalErrorMsg.textContent = 'An error occurred. Please try again.';
