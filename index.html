@@ -314,31 +314,55 @@
         </div>
     </div>
     
-    <!-- NEW: Role Login Modal (Re-designed) -->
-    <!-- MODIFIED: BG Color -->
+    <!-- MODIFIED: Role Login Modal (Re-designed with Tabs) -->
     <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-100">
         <div class="bg-white w-full max-w-sm p-8 rounded-lg shadow-xl">
             <!-- MODIFIED: Color -->
             <h3 class="text-2xl font-semibold mb-6 text-center text-primary">Welcome to Bug Board</h3>
-            
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <!-- MODIFIED: "EIN" to "Name" -->
-                    <label for="name-input" class="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
-                    <input type="text" id="name-input" placeholder="e.g., Calum Barnes" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
-                </div>
-                <div>
-                    <label for="tl-code-input" class="block text-sm font-medium text-slate-700 mb-2">Unique Code (if you are a TL)</label>
-                    <input type="password" id="tl-code-input" placeholder="Optional TL Code" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary">
-                </div>
-                
-                <div id="login-error-msg" class="text-red-600 text-sm pt-1 hidden"></div>
-                
-                <!-- MODIFIED: Color and ADDED id="login-btn" -->
-                <button type="submit" id="login-btn" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-primary/90 transition duration-150 mt-4">
-                    Login
+
+            <!-- Tab Buttons -->
+            <div class="grid grid-cols-2 gap-2 mb-6">
+                <button id="guide-tab-btn" class="w-full py-2 px-4 rounded-lg font-semibold text-sm transition bg-primary text-white">
+                    Guide Login
                 </button>
-            </form>
+                <button id="tl-tab-btn" class="w-full py-2 px-4 rounded-lg font-semibold text-sm transition bg-slate-200 text-slate-700 hover:bg-slate-300">
+                    TL Login
+                </button>
+            </div>
+
+            <!-- Login Error Message (Shared) -->
+            <div id="login-error-msg" class="text-red-600 text-sm pb-4 pt-1 hidden"></div>
+
+            <!-- Guide Login Panel -->
+            <div id="guide-login-panel">
+                <form id="guide-login-form" class="space-y-4">
+                    <div>
+                        <label for="name-input" class="block text-sm font-medium text-slate-700 mb-2">Your Name</label>
+                        <input type="text" id="name-input" placeholder="e.g., Calum Barnes" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label for="ein-input" class="block text-sm font-medium text-slate-700 mb-2">Your EIN</label>
+                        <input type="text" id="ein-input" placeholder="e.g., 123456" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                    <button type="submit" id="guide-login-btn" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-primary/90 transition duration-150 mt-4">
+                        Login as Guide
+                    </button>
+                </form>
+            </div>
+
+            <!-- TL Login Panel (Hidden by default) -->
+            <div id="tl-login-panel" class="hidden">
+                <form id="tl-login-form" class="space-y-4">
+                    <div>
+                        <label for="tl-code-input" class="block text-sm font-medium text-slate-700 mb-2">Unique Code</label>
+                        <input type="password" id="tl-code-input" placeholder="Enter your TL Code" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary" required>
+                    </div>
+                    <button type="submit" id="tl-login-btn" class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-primary/90 transition duration-150 mt-4">
+                        Login as TL
+                    </button>
+                </form>
+            </div>
+
         </div>
     </div>
 
@@ -371,6 +395,7 @@
         let db, auth;
         let userId = null; // Firebase anonymous auth ID
         let userName = null;  // MODIFIED: User's saved Name
+        let userEIN = null; // ADDED: User's EIN
         let userRole = null; // User's role ('guide' or 'tl')
         let ticketsCollectionRef;
         // const appId = typeof __app_id !== 'undefined' ? __app_id : 'bug-board-default'; // Removed for GitHub version
@@ -447,14 +472,27 @@
         const logoutBtn = document.getElementById('logout-btn');
         const headerLogoutBtn = document.getElementById('header-logout-btn'); // Header logout button
 
-        // NEW Login Modal DOM Elements
+        // MODIFIED: Login Modal DOM Elements
         const loginModal = document.getElementById('login-modal');
-        const loginForm = document.getElementById('login-form');
-        const nameInput = document.getElementById('name-input'); // MODIFIED
-        const tlCodeInput = document.getElementById('tl-code-input');
         const loginErrorMsg = document.getElementById('login-error-msg');
-        const appLoader = document.getElementById('app-loader'); // ADDED
-        const loginButton = document.getElementById('login-btn'); // ADDED
+        const appLoader = document.getElementById('app-loader');
+        
+        // Tab elements
+        const guideTabBtn = document.getElementById('guide-tab-btn');
+        const tlTabBtn = document.getElementById('tl-tab-btn');
+        const guideLoginPanel = document.getElementById('guide-login-panel');
+        const tlLoginPanel = document.getElementById('tl-login-panel');
+
+        // Guide Form
+        const guideLoginForm = document.getElementById('guide-login-form');
+        const nameInput = document.getElementById('name-input');
+        const einInput = document.getElementById('ein-input');
+        const guideLoginBtn = document.getElementById('guide-login-btn');
+
+        // TL Form
+        const tlLoginForm = document.getElementById('tl-login-form');
+        const tlCodeInput = document.getElementById('tl-code-input');
+        const tlLoginBtn = document.getElementById('tl-login-btn');
         
         // Header Display
         const userNameDisplay = document.getElementById('user-name-display'); // MODIFIED
@@ -647,13 +685,15 @@
         /**
          * NEW: Helper function to complete the login process
          */
-        function loginSuccess(role, name) { // MODIFIED: ein to name
+        function loginSuccess(role, name, ein = null) { // MODIFIED: Added ein
             userRole = role;
-            userName = name; // MODIFIED
+            userName = name; 
+            userEIN = ein; // ADDED
 
             // Save to localStorage
             localStorage.setItem('userRole', userRole);
-            localStorage.setItem('userName', userName); // MODIFIED
+            localStorage.setItem('userName', userName);
+            localStorage.setItem('userEIN', userEIN); // ADDED
             
             // Set default page based on role
             if (userRole === 'tl') {
@@ -670,95 +710,135 @@
 
 
         /**
-         * Handles the login logic (Guide button or TL form)
-         * MODIFIED: To correctly handle re-logins and name uniqueness.
+         * Handles the Guide login form submission
          */
-        async function handleAppLogin(e) {
+        async function handleGuideLogin(e) {
             e.preventDefault();
-            const name = nameInput.value.trim(); // MODIFIED
-            const tlCode = tlCodeInput.value.trim();
+            const name = nameInput.value.trim();
+            const ein = einInput.value.trim();
 
-            if (!name) { // MODIFIED
-                loginErrorMsg.textContent = 'Please enter your Name.'; // MODIFIED
+            if (!name || !ein) {
+                loginErrorMsg.textContent = 'Please enter your Name and EIN.';
                 loginErrorMsg.classList.remove('hidden');
                 return;
             }
 
             // Set loading state
-            loginButton.disabled = true;
-            loginButton.textContent = 'Checking...'; // MODIFIED
+            guideLoginBtn.disabled = true;
+            guideLoginBtn.textContent = 'Checking...';
             loginErrorMsg.classList.add('hidden');
 
             try {
-                // --- MODIFIED: Uniqueness & Role Check ---
                 const name_lowercase = name.toLowerCase();
                 const usersQuery = query(collection(db, usersCollectionPath), where("name_lowercase", "==", name_lowercase));
                 const querySnapshot = await getDocs(usersQuery);
 
-                let existingUserDoc = null;
                 if (!querySnapshot.empty) {
                     // This name is in the database. This is a RETURNING user.
-                    existingUserDoc = querySnapshot.docs[0];
+                    const existingUserDoc = querySnapshot.docs[0];
                     const storedRole = existingUserDoc.data().role;
+                    const storedEIN = existingUserDoc.data().ein;
 
-                    if (tlCode) {
-                        // User trying to re-login as TL
-                        if (storedRole !== 'tl') {
-                            throw new Error("This name is already registered as a Guide.");
-                        }
-                        // Role is correct, check TL code
-                        const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
-                        const tlCodeDoc = await getDoc(tlCodeRef);
-                        if (!tlCodeDoc.exists()) {
-                            throw new Error("Invalid TL Code. Please try again.");
-                        }
-                        // Code is valid. This is the correct TL.
-                        loginSuccess('tl', name);
-
-                    } else {
-                        // User trying to re-login as Guide
-                        if (storedRole !== 'guide') {
-                            throw new Error("This name is registered as a TL. Please provide your TL Code.");
-                        }
-                        // Role is 'guide', let them in.
-                        loginSuccess('guide', name);
+                    if (storedRole === 'tl') {
+                        throw new Error("This name is registered to a TL. Please use the TL Login tab.");
                     }
+
+                    if (storedEIN !== ein) {
+                        throw new Error("This name is registered with a different EIN.");
+                    }
+
+                    // Name and EIN match. This is a re-login.
+                    loginSuccess('guide', name, ein);
+
                 } else {
-                    // --- NEW USER ---
-                    // No doc exists with this name. This is a fresh registration.
-                    if (tlCode) {
-                        // Trying to register as NEW TL
-                        const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
-                        const tlCodeDoc = await getDoc(tlCodeRef);
-                        if (!tlCodeDoc.exists()) {
-                            throw new Error("Invalid TL Code. Please try again.");
-                        }
-                        // Code is valid, register new TL
-                        loginSuccess('tl', name);
-                    } else {
-                        // Register as NEW Guide
-                        loginSuccess('guide', name);
-                    }
+                    // No doc exists with this name. This is a NEW GUIDE.
+                    loginSuccess('guide', name, ein);
                 }
                 
             } catch (error) {
-                // Handle any errors (invalid code, network issues)
                 console.error("Login Error: ", error);
                 loginErrorMsg.textContent = error.message;
                 loginErrorMsg.classList.remove('hidden');
-                // Reset login button
-                loginButton.disabled = false;
-                loginButton.textContent = 'Login';
+                guideLoginBtn.disabled = false;
+                guideLoginBtn.textContent = 'Login as Guide';
             }
         }
+
+        /**
+         * Handles the TL login form submission
+         */
+        async function handleTLLogin(e) {
+            e.preventDefault();
+            const tlCode = tlCodeInput.value.trim();
+
+            if (!tlCode) {
+                loginErrorMsg.textContent = 'Please enter your Unique Code.';
+                loginErrorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Set loading state
+            tlLoginBtn.disabled = true;
+            tlLoginBtn.textContent = 'Verifying...';
+            loginErrorMsg.classList.add('hidden');
+
+            try {
+                // 1. Look up the TL Code
+                const tlCodeRef = doc(db, tlCodesCollectionPath, tlCode);
+                const tlCodeDoc = await getDoc(tlCodeRef);
+
+                if (!tlCodeDoc.exists()) {
+                    throw new Error("Invalid Unique Code.");
+                }
+
+                // 2. Get the TL's name from the document
+                const tlName = tlCodeDoc.data().name;
+                if (!tlName) {
+                    // This is a database setup error.
+                    // MODIFIED: Clearer error message
+                    console.error(`TL Code doc '${tlCode}' is missing a 'name' field.`);
+                    throw new Error(`Data Error: The TL Code "${tlCode}" is valid, but is missing the required 'name' field in Firebase.`);
+                }
+
+                // 3. Check if this TL's name is already in the users collection
+                const name_lowercase = tlName.toLowerCase();
+                const usersQuery = query(collection(db, usersCollectionPath), where("name_lowercase", "==", name_lowercase));
+                const querySnapshot = await getDocs(usersQuery);
+
+                if (!querySnapshot.empty) {
+                    // This is a RETURNING TL
+                    const existingUserDoc = querySnapshot.docs[0];
+                    const storedRole = existingUserDoc.data().role;
+
+                    if (storedRole === 'guide') {
+                        throw new Error("This name is registered as a Guide. Please log in as a Guide or contact an admin.");
+                    }
+
+                    // Role is 'tl', this is a re-login.
+                    loginSuccess('tl', tlName, null); // TLs don't have an EIN
+                } else {
+                    // This is a NEW TL (first time using this code)
+                    loginSuccess('tl', tlName, null);
+                }
+
+            } catch (error) {
+                console.error("Login Error: ", error);
+                loginErrorMsg.textContent = error.message;
+                loginErrorMsg.classList.remove('hidden');
+                tlLoginBtn.disabled = false;
+                tlLoginBtn.textContent = 'Login as TL';
+            }
+        }
+
 
         /**
          * Logs the user out by clearing their role and reloading
          */
         function handleLogout() {
-            // Clear both role and Name
+            // Clear all user data
             localStorage.removeItem('userRole');
-            localStorage.removeItem('userName'); // MODIFIED
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userEIN'); // ADDED
             location.reload();
         }
 
@@ -769,12 +849,14 @@
         function checkAppLogin() {
             // Check for both role and Name
             const savedRole = localStorage.getItem('userRole');
-            const savedName = localStorage.getItem('userName'); // MODIFIED
+            const savedName = localStorage.getItem('userName');
+            const savedEIN = localStorage.getItem('userEIN'); // ADDED
             
-            if (savedRole && savedName) { // MODIFIED
+            if (savedRole && savedName) {
                 // User is already "logged in", set globals and start the app
                 userRole = savedRole;
-                userName = savedName; // MODIFIED
+                userName = savedName;
+                userEIN = savedEIN; // ADDED
                 
                 // Set default page based on role (for page load)
                 if (userRole === 'tl') {
@@ -876,13 +958,16 @@
                 }
 
                 // Now, create or update the document with the correct userRef.
-                await setDoc(userRef, {
+                // MODIFIED: Save EIN for guides, or ensure it's null for TLs
+                const dataToSet = {
                     name: userName,
                     role: userRole,
                     lastLogin: serverTimestamp(),
-                    // ADDED: lowercase name for querying
-                    name_lowercase: name_lowercase 
-                }, { merge: true });
+                    name_lowercase: name_lowercase,
+                    ein: userEIN || null // Save EIN if it exists, otherwise null
+                };
+                
+                await setDoc(userRef, dataToSet, { merge: true });
                 
             } catch (error)
                 {
@@ -1650,8 +1735,30 @@
                     // User is signed in (anonymously)
                     userId = user.uid; // Set the global userId
                     
-                    // Now that we have a userId, attach the login form listener
-                    loginForm.addEventListener('submit', handleAppLogin);
+                    // Now that we have a userId, attach the new form listeners
+                    guideLoginForm.addEventListener('submit', handleGuideLogin);
+                    tlLoginForm.addEventListener('submit', handleTLLogin);
+
+                    // Attach Tab Listeners
+                    guideTabBtn.addEventListener('click', () => {
+                        guideLoginPanel.classList.remove('hidden');
+                        tlLoginPanel.classList.add('hidden');
+                        guideTabBtn.classList.add('bg-primary', 'text-white');
+                        guideTabBtn.classList.remove('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+                        tlTabBtn.classList.add('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+                        tlTabBtn.classList.remove('bg-primary', 'text-white');
+                        loginErrorMsg.classList.add('hidden');
+                    });
+
+                    tlTabBtn.addEventListener('click', () => {
+                        tlLoginPanel.classList.remove('hidden');
+                        guideLoginPanel.classList.add('hidden');
+                        tlTabBtn.classList.add('bg-primary', 'text-white');
+                        tlTabBtn.classList.remove('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+                        guideTabBtn.classList.add('bg-slate-200', 'text-slate-700', 'hover:bg-slate-300');
+                        guideTabBtn.classList.remove('bg-primary', 'text-white');
+                        loginErrorMsg.classList.add('hidden');
+                    });
                     
                     // And now, check if they are already logged in via localStorage
                     checkAppLogin();
