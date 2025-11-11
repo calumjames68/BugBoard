@@ -530,35 +530,37 @@
         /**
          * Formats a timestamp into a relative time string (e.g., "2 hours ago")
          */
-        function formatTimeAgo(timestamp) {
+        function formatTimeAgo(timestamp, includeAgo = true) { // ADDED includeAgo
             if (!timestamp) return '...';
             const date = timestamp.toDate ? timestamp.toDate() : timestamp;
             const seconds = Math.floor((new Date() - date) / 1000);
             
+            const suffix = includeAgo ? " ago" : ""; // ADDED suffix
+
             let interval = seconds / 31536000;
-            if (interval >= 1) { // MODIFIED: Check >= 1
+            if (interval >= 1) {
                 const num = Math.floor(interval);
-                return num === 1 ? "1 year" : num + " years"; // MODIFIED
+                return num === 1 ? `1 year${suffix}` : `${num} years${suffix}`; // MODIFIED
             }
             interval = seconds / 2592000;
-            if (interval >= 1) { // MODIFIED
+            if (interval >= 1) {
                 const num = Math.floor(interval);
-                return num === 1 ? "1 month" : num + " months"; // MODIFIED
+                return num === 1 ? `1 month${suffix}` : `${num} months${suffix}`; // MODIFIED
             }
             interval = seconds / 86400;
-            if (interval >= 1) { // MODIFIED
+            if (interval >= 1) {
                 const num = Math.floor(interval);
-                return num === 1 ? "1 day" : num + " days"; // MODIFIED
+                return num === 1 ? `1 day${suffix}` : `${num} days${suffix}`; // MODIFIED
             }
             interval = seconds / 3600;
-            if (interval >= 1) { // MODIFIED
+            if (interval >= 1) {
                 const num = Math.floor(interval);
-                return num === 1 ? "1 hour" : num + " hours"; // MODIFIED
+                return num === 1 ? `1 hour${suffix}` : `${num} hours${suffix}`; // MODIFIED
             }
             interval = seconds / 60;
-            if (interval >= 1) { // MODIFIED
+            if (interval >= 1) {
                 const num = Math.floor(interval);
-                return num === 1 ? "1 minute" : num + " minutes"; // MODIFIED
+                return num === 1 ? `1 minute${suffix}` : `${num} minutes${suffix}`; // MODIFIED
             }
             return "Just now";
         }
@@ -1379,7 +1381,8 @@
                 // MODIFIED: Color
                 timeOpenHtml = 'Permanent Issue';
             } else {
-                timeOpenHtml = `Open for ${formatTimeAgo(ticket.acknowledgedAt || ticket.createdAt)}`;
+                // MODIFIED: Pass false to formatTimeAgo to remove "ago"
+                timeOpenHtml = `Open for ${formatTimeAgo(ticket.acknowledgedAt || ticket.createdAt, false)}`;
             }
             // --- END: Time Open Logic ---
 
@@ -1453,11 +1456,13 @@
             let titleClass = "font-semibold text-lg";
             let descClass = "text-sm text-slate-600 mb-2";
             let buttonsHtml = "";
+            // MODIFIED: Call to formatTimeAgo now implicitly uses includeAgo = true
             let timeText = `Submitted ${formatTimeAgo(ticket.createdAt)} by <strong class="text-slate-600">${ticket.name}</strong>`;
 
             if (ticket.status === 'REJECTED') {
                 titleClass += " line-through text-slate-400";
                 descClass += " line-through text-slate-400";
+                // MODIFIED: Call to formatTimeAgo now implicitly uses includeAgo = true
                 timeText = `Rejected ${formatTimeAgo(ticket.rejectedAt)} by <strong class="text-slate-600">${ticket.rejecterName || 'TL'}</strong>`;
                 buttonsHtml = `
                     <button data-id="${ticket.id}" class="reopen-btn w-full bg-blue-500 text-white text-sm font-medium py-1 px-3 rounded-lg hover:bg-blue-600 transition">
@@ -1625,7 +1630,7 @@
                     el.innerHTML = `
                         <h3 class="font-semibold text-lg text-slate-500 line-through">${ticket.title}</h3>
                         <p class="text-sm text-slate-500 mb-2">${ticket.description}</p>
-                        <!-- MODIFIED: "Completed" to "Fixed" -->
+                        <!-- MODIFIED: "Completed" to "Fixed" / Call to formatTimeAgo now implicitly uses includeAgo = true -->
                         <p class="text-xs text-slate-400">Fixed ${formatTimeAgo(ticket.completedAt)}</p>
                         ${fixDescHtml} <!-- ADDED -->
                         ${resolverHtml} <!-- ADDED -->
