@@ -1626,7 +1626,7 @@
                     fixDescription: fixDescription, // ADDED
                     resolverName: userName // ADDED: Log who resolved it
                 });
-                hideModal();
+                hideCompleteModal(); // MODIFIED: Was hideModal()
             } catch (error) {
                 console.error("Error completing ticket: ", error);
                 completeModalErrorMsg.textContent = 'An error occurred. Please try again.';
